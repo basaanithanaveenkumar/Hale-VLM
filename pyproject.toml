@@ -1,0 +1,51 @@
+[project]
+name = "hale-vlm"
+version = "0.1.0"
+description = "Vision-language models built on Qwen3 and DeepSeek-R1 LLM backbones, powered by HaleBlocks"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Naveenkumar Basaanitha" }]
+dependencies = [
+    "accelerate>=1.14.0",
+    "datasets>=5.0.1",
+    "einops>=0.8.2",
+    "hale-blocks",
+    "peft>=0.14.0",
+    "pillow>=12.3.0",
+    "torchvision>=0.28.0",
+    "transformers>=5.16.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=4.0",
+    "pytest>=8.0",
+    "ruff>=0.8",
+]
+
+[project.scripts]
+hale-vlm-train = "hale_vlm.cli.train:main"
+hale-vlm-chat = "hale_vlm.cli.chat:main"
+
+[build-system]
+requires = ["uv_build>=0.11.29,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+hale-blocks = { git = "https://github.com/basaanithanaveenkumar/HaleBlocks.git" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "smoke: fast sanity checks",
+    "integration: multi-module workflows",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
