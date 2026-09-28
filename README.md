@@ -2,6 +2,17 @@
 
 Vision-language models built on dense transformer LLMs, using [HaleBlocks](https://github.com/basaanithanaveenkumar/HaleBlocks) for training infrastructure and reusable transformer components.
 
+## Resources
+
+| | |
+|---|---|
+| Paper (arXiv source) | [`paper/main.tex`](paper/main.tex) — build with `make -C paper` |
+| Project page | [basaanithanaveenkumar.github.io/Hale-VLM](https://basaanithanaveenkumar.github.io/Hale-VLM/) ([source](project-page/index.html)) |
+| Documentation | [`docs/`](docs/README.md) — getting started, configuration, data, [known issues](docs/known-issues.md) |
+| Architecture diagrams | [`docs/architecture.md`](docs/architecture.md) (Mermaid) |
+| Blog | [Giving an 8B reasoning model eyes for about 1% of its parameters](docs/blog/2026-09-28-eyes-for-a-reasoning-llm.md) |
+| Claude Code skills | [`.claude/skills/`](.claude/skills) — `hale-vlm-dev`, `hale-vlm-train`, `hale-vlm-datasets`, `hale-publish` |
+
 ## Supported LLM backbones
 
 | Backbone | Params | Architecture | Notes |
