@@ -5,7 +5,8 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from hale_vlm.config.sections.vision import VisionConfig
+from hale_vlm.config.sections.vision import TOKEN_CONNECTOR_TYPES, VisionConfig
+from hale_vlm.vision.connectors import build_vision_connector
 
 
 class VisionProjector(nn.Module):
@@ -28,5 +29,12 @@ class VisionProjector(nn.Module):
         return self.net(vision_features)
 
 
-def build_projector(vision_dim: int, llm_dim: int, cfg: VisionConfig) -> VisionProjector:
+def build_projector(vision_dim: int, llm_dim: int, cfg: VisionConfig) -> nn.Module:
+    """Build the vision-to-LLM projector selected by ``cfg.projector_type``.
+
+    ``mlp`` / ``linear`` keep one output token per vision patch; ``qformer`` and
+    ``gated_cross_attention`` compress them into a fixed number of learned tokens.
+    """
+    if cfg.projector_type in TOKEN_CONNECTOR_TYPES:
+        return build_vision_connector(vision_dim, llm_dim, cfg)
     return VisionProjector(vision_dim, llm_dim, cfg)
