@@ -36,6 +36,10 @@ class HaleVLM(nn.Module):
         self.image_token_id = self._resolve_image_token_id(llm_cfg.image_token)
         self._log_trainable_summary()
 
+    @property
+    def num_image_tokens(self) -> int:
+        return self.cfg.model.vision.resolved_num_image_tokens()
+
     def trainable_parameters(self):
         """Parameters updated during fine-tuning: projector, optional vision, LoRA adapters."""
         yield from iter_trainable_parameters(self.projector)
@@ -81,7 +85,7 @@ class HaleVLM(nn.Module):
     def encode_images(self, pixel_values: torch.Tensor) -> torch.Tensor:
         vision_features = self.vision(pixel_values)
         projected = self.projector(vision_features)
-        num_tokens = self.cfg.model.vision.num_image_tokens
+        num_tokens = self.cfg.model.vision.resolved_num_image_tokens()
         if projected.shape[1] > num_tokens:
             projected = projected[:, :num_tokens]
         return projected

@@ -11,10 +11,12 @@ can `inherits:` a parent file and override fields.
 | `model_id` | `google/siglip-base-patch16-224` | HF id |
 | `image_size` | 224 | |
 | `freeze_encoder` | true | freeze the vision tower |
-| `projector_type` | `mlp` | `mlp` (d_v → hidden → d) or `linear` |
+| `projector_type` | `mlp` | `mlp` (d_v → hidden → d), `linear`, `qformer` or `gated_cross_attention` (see [vision_connectors.md](vision_connectors.md)) |
 | `projector_hidden_dim` | null → 2·d_llm | MLP hidden width |
 | `projector_dropout` | 0.0 | |
-| `num_image_tokens` | 256 (schema) / 196 (`base.yaml`) | visual tokens kept per image |
+| `num_image_tokens` | 256 (schema) / 196 (`base.yaml`) | visual tokens kept per image (`mlp`/`linear`; the token connectors use their own count) |
+| `qformer.num_queries` | 32 | learned queries, used when `projector_type: qformer` |
+| `gated_cross_attention.num_latents` | 64 | learned latents, used when `projector_type: gated_cross_attention` |
 
 ## `model.llm` (`LLMConfig`)
 
