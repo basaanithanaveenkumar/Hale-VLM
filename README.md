@@ -10,6 +10,35 @@
 
 </div>
 
+## How it works
+
+A frozen image encoder reads the photo and converts it to a sequence of visual tokens. A tiny trainable MLP projector translates those tokens into the language model's vocabulary space. The frozen LLM — with small LoRA patches on its attention layers — reads both the visual tokens and your text prompt and generates an answer. Only ~1% of the total weights are ever updated.
+
+```mermaid
+flowchart LR
+  subgraph INPUT["What you give it"]
+    IMG["🖼️ Photo\n(224 × 224)"]
+    PROMPT["💬 Question or instruction"]
+  end
+
+  subgraph FROZEN["Frozen — never updated"]
+    ENC["SigLIP encoder\nreads pixels → 196 visual tokens"]
+    LLM["Qwen3-8B or DeepSeek-R1-7B\n(language understanding)"]
+  end
+
+  subgraph TRAINED["Trained — ~1% of total weights"]
+    PROJ["MLP projector\n(connects vision to language)"]
+    LORA["LoRA adapters\n(fine-tune attention layers)"]
+  end
+
+  IMG --> ENC --> PROJ --> LLM
+  PROMPT --> LLM
+  LORA -.->|"patched onto"| LLM
+  LLM --> ANS["💬 Answer"]
+```
+
+> **Why freeze most of it?** The LLM already knows language deeply. You only need to teach it to *look* — the projector + LoRA do that in a fraction of the compute.
+
 > **Note:** This repo has been merged into [Halo-VLM](https://github.com/basaanithanaveenkumar/Halo-VLM). Use the Halo-VLM repo for ongoing work — it contains both `src/hale_vlm/` and `src/halo_vlm/`.
 
 Vision-language models built on Qwen3 and DeepSeek-R1 LLM backbones, powered by HaleBlocks.
