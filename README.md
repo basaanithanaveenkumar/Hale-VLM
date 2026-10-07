@@ -1,5 +1,15 @@
 # Hale-VLM
 
+<div align="center">
+
+[![GitHub](https://img.shields.io/badge/GitHub-Hale--VLM-181717?logo=github&logoColor=white)](https://github.com/basaanithanaveenkumar/Hale-VLM)
+[![Project Page](https://img.shields.io/badge/🌐_Project-Page-4A90D9)](https://basaanithanaveenkumar.github.io/Hale-VLM/)
+[![arXiv](https://img.shields.io/badge/arXiv-paper-b31b1b?logo=arxiv&logoColor=white)](https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/paper/main.tex)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+
+</div>
+
 > **Note:** This repo has been merged into [Halo-VLM](https://github.com/basaanithanaveenkumar/Halo-VLM). Use the Halo-VLM repo for ongoing work — it contains both `src/hale_vlm/` and `src/halo_vlm/`.
 
 Vision-language models built on Qwen3 and DeepSeek-R1 LLM backbones, powered by HaleBlocks.
