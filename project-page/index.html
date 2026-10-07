@@ -3,147 +3,286 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hale-VLM</title>
-<meta name="description" content="Frozen SigLIP + MLP projector + LoRA on Qwen3-8B / DeepSeek-R1-Distill-Qwen-7B, with typed SmolVLM and SmolVLA data registries.">
+<title>Hale-VLM — Parameter-Efficient VLMs</title>
+<meta name="description" content="Frozen SigLIP + MLP projector + LoRA on Qwen3-8B. Train ~1% of an 8B model to give it vision. Typed SmolVLM and SmolVLA data registries.">
 <meta property="og:title" content="Hale-VLM: Parameter-Efficient VLMs on Dense Reasoning LLMs">
-<meta property="og:description" content="Frozen SigLIP + MLP projector + LoRA on Qwen3-8B / DeepSeek-R1-Distill-Qwen-7B, with typed SmolVLM and SmolVLA data registries.">
+<meta property="og:description" content="83.5M trainable parameters give an 8B reasoning LLM vision. One YAML file = one reproducible experiment.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
 <style>
-:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#5b5b63;--card:#ffffff;--line:#e4e2dc;--accent:#2f5bd3;--accent-soft:#e8eefc;--code:#f3f2ee;--chip:#efeee9}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111214;--fg:#ececee;--muted:#a0a0aa;--card:#1a1b1f;--line:#2c2d33;--accent:#8aa8ff;--accent-soft:#1e2640;--code:#1f2025;--chip:#24252b}}
+:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#5b5b63;--card:#fff;--line:#e4e2dc;--accent:#2f5bd3;--accent-soft:#e8eefc;--code:#f3f2ee;--chip:#efeee9}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111214;--fg:#ececee;--muted:#a0a0aa;--card:#1a1b1f;--line:#2c2d33;--accent:#8aa8ff;--accent-soft:#1e2640;--code:#1f2025;--chip:#24252b}}
 :root[data-theme="dark"]{--bg:#111214;--fg:#ececee;--muted:#a0a0aa;--card:#1a1b1f;--line:#2c2d33;--accent:#8aa8ff;--accent-soft:#1e2640;--code:#1f2025;--chip:#24252b}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 "Source Serif 4",Georgia,serif}
-.wrap{max-width:920px;margin:0 auto;padding:0 16px}
-header.hero{padding:64px 0 28px;text-align:center}
-.kicker{font:600 13px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
-h1{font:700 clamp(30px,5.4vw,48px)/1.15 Inter,system-ui,sans-serif;margin:14px 0 10px;letter-spacing:-.02em}
-.subtitle{font-size:clamp(17px,2.4vw,21px);color:var(--muted);max-width:720px;margin:0 auto}
-.authors{margin:20px 0 4px;font:500 16px Inter,system-ui,sans-serif}
-.affil{color:var(--muted);font:14px Inter,system-ui,sans-serif}
-.buttons{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:26px 0 8px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:var(--fg);color:var(--bg);text-decoration:none;font:600 14px Inter,system-ui,sans-serif}
-.btn.alt{background:transparent;color:var(--fg);border:1px solid var(--line)}
-.btn:hover{opacity:.88}
-section{padding:26px 0;border-top:1px solid var(--line)}
-h2{font:700 24px/1.3 Inter,system-ui,sans-serif;margin:0 0 14px;letter-spacing:-.01em}
-h3{font:650 17px/1.35 Inter,system-ui,sans-serif;margin:0 0 6px}
+.wrap{max-width:900px;margin:0 auto;padding:0 18px}
+header.hero{padding:68px 0 32px;text-align:center}
+.kicker{font:600 12px/1 Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+h1{font:700 clamp(28px,5vw,46px)/1.15 Inter,system-ui,sans-serif;margin:0 0 12px;letter-spacing:-.02em}
+.tagline{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:680px;margin:0 auto 20px}
+.authors{font:500 15px/1.6 Inter,system-ui,sans-serif;margin:0 0 4px}
+.affil{color:var(--muted);font:14px Inter,system-ui,sans-serif;margin-bottom:22px}
+.buttons{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:999px;background:var(--fg);color:var(--bg);text-decoration:none;font:600 14px Inter,system-ui,sans-serif;transition:opacity .15s}
+.btn.alt{background:transparent;color:var(--fg);border:1.5px solid var(--line)}
+.btn:hover{opacity:.82}
+section{padding:28px 0;border-top:1px solid var(--line)}
+h2{font:700 22px/1.3 Inter,system-ui,sans-serif;margin:0 0 14px;letter-spacing:-.01em}
+h3{font:650 16px/1.35 Inter,system-ui,sans-serif;margin:0 0 6px}
 p{margin:0 0 12px}
-.tldr{background:var(--accent-soft);border-radius:14px;padding:18px 20px;font-size:18px}
-.tldr b{font-family:Inter,system-ui,sans-serif}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tldr-box{background:var(--accent-soft);border-radius:14px;padding:20px 24px}
+.tldr-list{list-style:none;padding:0;margin:12px 0 0}
+.tldr-list li{padding:5px 0 5px 26px;position:relative;font-size:16.5px}
+.tldr-list li::before{content:"→";position:absolute;left:0;color:var(--accent);font-weight:700}
+.metric{display:inline-block;background:var(--accent);color:#fff;border-radius:8px;padding:4px 12px;font:700 14px Inter,system-ui,sans-serif;margin-top:10px}
+.problem-box{border-left:3px solid var(--accent);background:var(--card);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0}
+.method-steps{list-style:none;padding:0;counter-reset:step}
+.method-step{counter-increment:step;padding:14px 0 14px 54px;position:relative;border-bottom:1px solid var(--line)}
+.method-step:last-child{border-bottom:none}
+.method-step::before{content:counter(step);position:absolute;left:0;top:14px;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font:700 14px Inter,system-ui,sans-serif}
+.callout{background:var(--accent-soft);border-radius:12px;padding:12px 16px;margin:10px 0;font-size:15.5px}
+.callout strong{color:var(--accent);font-family:Inter,system-ui,sans-serif}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.card p{font-size:15.5px;color:var(--muted);margin:0}
-figure{margin:0 0 18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
-figcaption{font:14px/1.5 Inter,system-ui,sans-serif;color:var(--muted);margin-top:10px}
-.mermaid{display:flex;justify-content:center;min-width:0}
-.mermaid svg{max-width:100%;height:auto}
-pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;font:13.5px/1.55 "JetBrains Mono",ui-monospace,monospace;margin:0 0 12px}
-code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.9em}
-table{width:100%;border-collapse:collapse;font:15px/1.5 Inter,system-ui,sans-serif}
+.card p{font-size:15px;color:var(--muted);margin:0}
+table{width:100%;border-collapse:collapse;font:14.5px/1.5 Inter,system-ui,sans-serif}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--muted);font-weight:600}
-td code{background:var(--chip);padding:1px 6px;border-radius:6px}
-.tablewrap{overflow-x:auto}
+th{color:var(--muted);font-weight:600;font-size:13px}
+td.best{font-weight:700;color:var(--accent)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.tablewrap table{margin:0}
+pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;font:13px/1.55 "JetBrains Mono",ui-monospace,monospace;margin:0 0 12px}
+code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.88em;background:var(--chip);padding:1px 5px;border-radius:5px}
+pre code{background:none;padding:0;font-size:inherit}
+figure{margin:0 0 20px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+figcaption{font:13.5px/1.5 Inter,system-ui,sans-serif;color:var(--muted);margin-top:10px}
+.mermaid{display:flex;justify-content:center}
+.mermaid svg{max-width:100%;height:auto}
+.demo-steps{list-style:none;padding:0;counter-reset:run}
+.demo-step{counter-increment:run;padding:4px 0 4px 36px;position:relative;margin-bottom:8px}
+.demo-step::before{content:counter(run);position:absolute;left:0;top:6px;width:24px;height:24px;border-radius:50%;background:var(--fg);color:var(--bg);display:flex;align-items:center;justify-content:center;font:700 12px Inter;flex-shrink:0}
+.lim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.lim-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tag{display:inline-block;font:600 10px/1 Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;margin:0 4px 6px 0}
+.tag-known{background:#d1ecf1;color:#0c5460}
+.tag-warn{background:#fff3cd;color:#856404}
+.tag-open{background:#d4edda;color:#155724}
+:root[data-theme="dark"] .tag-known,:root:not([data-theme="light"]) .tag-known{background:#002530;color:#9df}
+:root[data-theme="dark"] .tag-warn,:root:not([data-theme="light"]) .tag-warn{background:#2e1f00;color:#ffd}
+:root[data-theme="dark"] .tag-open,:root:not([data-theme="light"]) .tag-open{background:#001e0a;color:#9fa}
+.checklist{font:13px/1.9 "JetBrains Mono",monospace;background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 18px;list-style:none}
+.checklist li::before{content:"☐  "}
 .note{font:14px/1.55 Inter,system-ui,sans-serif;color:var(--muted)}
-footer{padding:32px 0 48px;color:var(--muted);font:14px Inter,system-ui,sans-serif;text-align:center;border-top:1px solid var(--line)}
-a{color:var(--accent)}
-.theme{position:fixed;top:12px;right:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 12px;font:13px Inter,system-ui,sans-serif;cursor:pointer}
+footer{padding:34px 0 52px;color:var(--muted);font:14px Inter,system-ui,sans-serif;text-align:center;border-top:1px solid var(--line)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.theme{position:fixed;top:12px;right:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 12px;font:13px Inter,system-ui,sans-serif;cursor:pointer;z-index:99}
 </style>
 </head>
 <body>
-<button class="theme" id="theme" aria-label="Toggle dark mode">Theme</button>
+<button class="theme" id="theme">Theme</button>
 <div class="wrap">
+
 <header class="hero">
-  <div class="kicker">Vision-language models · LoRA · Data registries</div>
-  <h1>Hale-VLM: Parameter-Efficient VLMs on Dense Reasoning LLMs</h1>
-  <p class="subtitle">A frozen SigLIP encoder and a small MLP projector connect to Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B, which are adapted with LoRA. Experiments are one YAML file, and the full SmolVLM and SmolVLA data recipes are typed registries.</p>
+  <div class="kicker">Vision-language · LoRA · Parameter-efficient · Reasoning LLMs</div>
+  <h1>Hale-VLM</h1>
+  <p class="tagline">Train ~1% of an 8B reasoning LLM to understand images — frozen encoder, tiny projector, LoRA adapters.</p>
   <div class="authors">B A NaveenKumar</div>
   <div class="affil">Independent research · 2026</div>
-  <div class="buttons"><a class="btn" href="paper.pdf">Paper (PDF)</a><a class="btn alt" href="https://github.com/basaanithanaveenkumar/Hale-VLM">Code</a><a class="btn alt" href="https://github.com/basaanithanaveenkumar/Hale-VLM/tree/main/docs">Docs</a><a class="btn alt" href="https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/docs/blog/2026-09-28-eyes-for-a-reasoning-llm.md">Blog</a></div>
+  <div class="buttons">
+    <a class="btn" href="paper.pdf">📄 Paper PDF</a>
+    <a class="btn alt" href="https://github.com/basaanithanaveenkumar/Hale-VLM">💻 Code</a>
+    <a class="btn alt" href="https://github.com/basaanithanaveenkumar/Hale-VLM/tree/main/docs">📚 Docs</a>
+    <a class="btn alt" href="https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/docs/blog/2026-09-28-eyes-for-a-reasoning-llm.md">📝 Blog</a>
+  </div>
 </header>
-<section><div class="tldr"><b>TL;DR.</b> Train about 1% of an 8B model (LoRA + projector) to give it vision. Every piece (model variants, loss, trainer, 19 SmolVLM datasets, 540 SmolVLA robot datasets) is a HaleBlocks plugin, and robot frames can be reused as VLM training data.</div></section>
-<section><h2>Abstract</h2><p>Turning a strong text-only LLM into a vision–language model is conceptually simple: connect a pretrained image encoder through a small projector and fine-tune. In practice, most effort goes into the surrounding system: which parameters to train, how to express multi-stage data mixtures reproducibly, how to stream tens of large datasets without exhausting disk, and how to reuse robotics data.</p><p>Hale-VLM builds VLMs on Qwen3-8B and DeepSeek-R1-Distill-Qwen-7B from a frozen SigLIP encoder, a trainable MLP projector and LoRA adapters, updating about 72–84M parameters. Every component is a plugin in the HaleBlocks registries, so a whole experiment is one inheritable YAML file. The framework ships typed registries of the SmolVLM recipe (19 datasets by stage, plus one documented rejected dataset) and the SmolVLA robotics corpus, a bounded-storage streaming mixer, and a converter that turns robot frames into VLM samples.</p></section>
-<section><h2>Highlights</h2><div class="grid"><div class="card"><h3>≈1% trainable</h3><p>SigLIP and LLM frozen. MLP projector plus LoRA r = 16 on q,k,v,o,gate,up,down: 83.5M for Qwen3-8B, 71.6M for R1-Distill-7B.</p></div><div class="card"><h3>Two reasoning backbones</h3><p>Qwen3-8B (default) and DeepSeek-R1-Distill-Qwen-7B through <code>transformers</code>, with a custom backbone option.</p></div><div class="card"><h3>Registry-driven</h3><p>Model variants, loss, <code>vlm</code> trainer and datasets register into HaleBlocks. Configs use strict schemas with <code>inherits:</code>.</p></div><div class="card"><h3>SmolVLM recipe as code</h3><p>Vision, video and long-context stages as typed dataset specs. SmolTalk is registered but disabled, with the paper's reason attached.</p></div><div class="card"><h3>Bounded-storage streaming</h3><p>Stream one dataset at a time up to a cap while the next is warmed up in the background.</p></div><div class="card"><h3>Robots → VLM data</h3><p>534 community, 2 simulation and 4 real-world SmolVLA datasets, convertible into pretraining, fine-tuning or instruction samples.</p></div></div></section>
-<section><h2>Architecture</h2><figure><div class="mermaid">flowchart LR
-  IMG[&quot;image 224×224&quot;] --&gt; SIG[&quot;SigLIP-B/16&lt;br/&gt;(frozen)&quot;]
-  SIG --&gt;|&quot;196 × 768&quot;| PROJ[&quot;MLP projector&lt;br/&gt;768 → 2d → d&lt;br/&gt;(trainable)&quot;]
-  TXT[&quot;prompt with &amp;lt;image&amp;gt;&quot;] --&gt; TOK[&quot;tokenizer + LLM embeddings&lt;br/&gt;(frozen)&quot;]
-  PROJ --&gt; MERGE[&quot;merge visual tokens&lt;br/&gt;at the &amp;lt;image&amp;gt; position&quot;]
-  TOK --&gt; MERGE
-  MERGE --&gt; LLM[&quot;Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B&lt;br/&gt;frozen base + LoRA r=16&lt;br/&gt;q,k,v,o,gate,up,down&quot;]
-  LLM --&gt; LOSS[&quot;causal LM loss&quot;]</div><figcaption><b>Figure 1.</b> Model: frozen SigLIP → trainable projector → frozen LLM with LoRA.</figcaption></figure><figure><div class="mermaid">flowchart LR
-  Y[&quot;YAML (inherits: base.yaml)&quot;] --&gt; C[&quot;load_vlm_config → VLMRunConfig&lt;br/&gt;(strict pydantic)&quot;]
-  C --&gt; R{&quot;HaleBlocks registries&quot;}
-  BOOT[&quot;register_vlm_plugins()&quot;] --&gt; R
-  R --&gt;|&quot;variant: qwen3_8b_vlm&quot;| M[&quot;HaleVLM&quot;]
-  R --&gt;|&quot;loss: same variant name&quot;| LS[&quot;_vlm_loss&quot;]
-  R --&gt;|&quot;trainer: vlm&quot;| TR[&quot;VLMTrainer&quot;]
-  R --&gt;|&quot;vlm_dataset / vla_dataset&quot;| DS[&quot;dataset adapters&quot;]
-  M &amp; LS &amp; TR &amp; DS --&gt; FIT[&quot;Trainer.fit()&quot;]</div><figcaption><b>Figure 2.</b> Plugin wiring: one YAML selects the model, loss, trainer and data through HaleBlocks registries.</figcaption></figure><figure><div class="mermaid">flowchart TB
-  CAT[&quot;catalog.py stage presets&lt;br/&gt;vision · video · context&quot;] --&gt; SEQ[&quot;SequentialMultiDatasetStream&lt;br/&gt;stream ≤ max_samples_per_dataset&lt;br/&gt;prefetch next dataset&quot;]
-  VCAT[&quot;vla_catalog.py&lt;br/&gt;community · simulation · real_world&quot;] --&gt; CONV[&quot;vla_sample_to_vlm&lt;br/&gt;robotics_vlm_mode&quot;]
-  CONV --&gt; MIX[&quot;mixed_registry&quot;]
-  SEQ --&gt; MIX
-  MIX --&gt; ENC[&quot;encode: transform image(s),&lt;br/&gt;build prompt, tokenize (max_length)&quot;]
-  ENC --&gt; BATCH[&quot;pixel_values, input_ids,&lt;br/&gt;attention_mask, labels&quot;]
-  BATCH --&gt; MODEL[&quot;HaleVLM.forward&quot;]</div><figcaption><b>Figure 3.</b> Data flow: SmolVLM stages and SmolVLA robotics data merge into one stream.</figcaption></figure><figure><div class="mermaid">sequenceDiagram
-  participant T as Trainer
-  participant S as SequentialMultiDatasetStream
-  participant P as Prefetch thread
-  participant H as HF Hub
-  S-&gt;&gt;P: warm up dataset 2
-  P-&gt;&gt;H: resolve and open stream
-  loop up to max_samples_per_dataset
-    S-&gt;&gt;H: stream dataset 1 rows
-    S--&gt;&gt;T: VLMSample
-  end
-  S-&gt;&gt;P: wait for dataset 2 warm-up, start warming dataset 3
-  loop up to max_samples_per_dataset
-    S-&gt;&gt;H: stream dataset 2 rows
-    S--&gt;&gt;T: VLMSample
-  end</div><figcaption><b>Figure 4.</b> Streaming mixer with background warm-up of the next dataset.</figcaption></figure></section>
-<section><h2>Trainable parameters (default policy, computed from backbone shapes)</h2><div class="tablewrap"><table><thead><tr><th>Backbone</th><th>LoRA</th><th>Projector</th><th>Trainable</th></tr></thead><tbody><tr><td>Qwen3-8B</td><td>43.6M</td><td>39.9M</td><td>83.5M (≈1.0%)</td></tr><tr><td>DeepSeek-R1-Distill-Qwen-7B</td><td>40.4M</td><td>31.2M</td><td>71.6M (≈0.9%)</td></tr></tbody></table></div></section>
-<section><h2>Status and known issues</h2><p class='note'>No benchmark results are reported yet. Two input-pipeline issues were found while writing the paper: visual tokens currently overwrite the text after <code>&lt;image&gt;</code>, and the loss covers the whole prompt. Both are documented with fixes in <a href='https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/docs/known-issues.md'>known-issues.md</a> and should be fixed before benchmarking.</p></section>
-<section><h2>Quick start</h2><pre><code>git clone https://github.com/basaanithanaveenkumar/Hale-VLM &amp;&amp; cd Hale-VLM
-uv sync --extra dev
-uv run hale-vlm-train configs/qwen3_8b_overfit.yaml
-uv run hale-vlm-chat configs/base.yaml --image cat.jpg --prompt &quot;What is in this image?&quot;</code></pre><pre><code># configs/smolvlm_all.yaml — the full SmolVLM mixture
-inherits: base.yaml
-data:
-  source: registry
-  registry_stage: all
-  streaming: true
-  max_samples_per_dataset: 128</code></pre></section>
-<section><h2>Citation</h2><pre><code>@misc{naveenkumar2026halevlm,
-  title  = {Hale-VLM: Registry-Driven, Parameter-Efficient Vision--Language Models
-            on Dense Reasoning LLMs, with SmolVLM and SmolVLA Data Pipelines},
-  author = {NaveenKumar, B A},
-  year   = {2026},
-  url    = {https://github.com/basaanithanaveenkumar/Hale-VLM}
-}</code></pre></section>
+
+<section>
+<div class="tldr-box">
+  <b>TL;DR.</b> Give a frozen Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B vision by connecting a pretrained SigLIP encoder through a small MLP projector and fine-tuning only LoRA adapters. Every experiment is one inheritable YAML file; the full SmolVLM recipe and 540 SmolVLA robotics datasets are typed registries.
+  <ul class="tldr-list">
+    <li><b>Problem:</b> Full fine-tuning of frontier LLMs for vision is prohibitively expensive; simple adapters miss the reasoning backbone's capabilities.</li>
+    <li><b>Method:</b> Frozen SigLIP-B/16 → trainable MLP projector (768 → 2d → d) → frozen LLM base + LoRA r=16 on q,k,v,o,gate,up,down.</li>
+    <li><b>Data:</b> 19 SmolVLM datasets across vision/video/context stages; 534 community + 2 sim + 4 real SmolVLA robot datasets convertible to VLM samples.</li>
+    <li><b>Infrastructure:</b> Bounded-storage sequential streaming, strict pydantic configs, HaleBlocks plugin registries.</li>
+    <li><b>Known issues:</b> Visual token merge bug and full-prompt loss coverage — both documented with fixes in <a href="https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/docs/known-issues.md">known-issues.md</a>.</li>
+  </ul>
+  <span class="metric">83.5 M trainable params ≈ 1.0% of Qwen3-8B</span>
 </div>
-<footer>Hale-VLM · <a href="https://github.com/basaanithanaveenkumar/Hale-VLM">Source on GitHub</a> · MIT License</footer>
+</section>
+
+<section>
+<h2>Problem Statement</h2>
+<p>Strong text-only LLMs (Qwen3, DeepSeek-R1) are capable reasoners but have no visual grounding. Adding vision capability typically means one of:</p>
+<div class="problem-box"><b>Full fine-tuning:</b> Expensive, risks catastrophic forgetting of language capabilities, requires large cluster. Impractical for independent research.</div>
+<div class="problem-box"><b>CLIP + simple projection:</b> Works for captioning and basic VQA but misses the chain-of-thought, code, and math reasoning the dense LLM backbone provides.</div>
+<div class="problem-box"><b>Adapter-only (LoRA without projector):</b> The LLM's token space is not designed for raw image patches; a trainable projector is needed to bridge the two modalities.</div>
+<p>The Hale-VLM design targets a middle path: freeze everything except a small learned bridge (projector + LoRA) — the LLM retains all its reasoning ability while gaining the ability to interpret images. Reproducibility is a first-class concern: the full SmolVLM data recipe is encoded as typed Python specs, not scattered shell scripts.</p>
+</section>
+
+<section>
+<h2>Method</h2>
+<figure>
+<div class="mermaid">flowchart LR
+  IMG["Image 224×224"] --> SIG["SigLIP-B/16\n(frozen)\n196 × 768"]
+  SIG --> PROJ["MLP projector\n768 → 2d → d\n(trainable)"]
+  TXT["Prompt with &lt;image&gt;"] --> TOK["tokenizer + LLM embeddings\n(frozen)"]
+  PROJ --> MERGE["replace &lt;image&gt; slot\nwith 196 visual tokens"]
+  TOK --> MERGE
+  MERGE --> LLM["Qwen3-8B or DeepSeek-R1-7B\nfrozen base + LoRA r=16\nq,k,v,o,gate,up,down"]
+  LLM --> OUT["Answer tokens\n(causal LM loss on answer only)"]</div>
+<figcaption><b>Figure 1.</b> Model overview: frozen vision tower → trainable projector → frozen LLM with LoRA. Only ~1% of total parameters are updated.</figcaption>
+</figure>
+
+<ol class="method-steps">
+<li class="method-step">
+  <h3>Vision tower</h3>
+  <p>SigLIP-B/16 (12-layer ViT, patch size 16, output dim 768) processes 224×224 images without the [CLS] token — all 196 patch embeddings are kept and fed to the projector. The encoder is frozen throughout training.</p>
+</li>
+<li class="method-step">
+  <h3>MLP projector</h3>
+  <p>A two-layer MLP with GELU activation maps 768-d SigLIP features to the LLM's hidden dimension $d$: $\text{proj}(z) = W_2 \cdot \text{GELU}(W_1 z)$ where $W_1 \in \mathbb{R}^{2d \times 768}$ and $W_2 \in \mathbb{R}^{d \times 2d}$. This is always trainable and accounts for ~40M parameters (Qwen3-8B).</p>
+</li>
+<li class="method-step">
+  <h3>LoRA adapters</h3>
+  <p>LoRA rank 16 is applied to q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, and down_proj in every transformer layer of the LLM. Each adapter adds $\Delta W = BA$ where $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times d}$, $r=16$. Only $A$ and $B$ are updated; the base weight is frozen.</p>
+  <div class="callout"><strong>★ Parameter efficiency:</strong> Qwen3-8B has ~8B parameters. LoRA (43.6M) + projector (39.9M) = 83.5M ≈ 1.0% trained. DeepSeek-R1-Distill-7B: 71.6M ≈ 0.9%.</div>
+</li>
+<li class="method-step">
+  <h3>Streaming data pipeline</h3>
+  <p>The SmolVLM recipe defines 19 datasets across three stages (vision, video, long-context). A <code>SequentialMultiDatasetStream</code> plays each dataset up to a configurable cap while pre-fetching the next in a background thread — bounded disk usage regardless of total dataset size.</p>
+  <p>540 SmolVLA robot datasets can be converted to VLM samples via <code>vla_sample_to_vlm()</code> in three modes: pretrain (image+caption), finetune (Q&amp;A), and instruction (trajectory description).</p>
+</li>
+<li class="method-step">
+  <h3>Training &amp; registry wiring</h3>
+  <p>Every component (model variant, loss, trainer, datasets) registers into HaleBlocks via a decorator. A YAML config selects components by name. <code>inherits: base.yaml</code> allows single-field overrides without duplication.</p>
+  <p>Training uses causal LM loss on answer tokens only (prompt tokens masked with $-100$). AdamW, AMP (bfloat16), configurable gradient accumulation.</p>
+</li>
+</ol>
+</section>
+
+<section>
+<h2>Experiments &amp; Results</h2>
+<h3>Trainable parameter comparison</h3>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Backbone</th><th>LoRA params</th><th>Projector params</th><th>Total trainable</th><th>% of base</th></tr></thead>
+<tbody>
+<tr><td>Qwen3-8B</td><td>43.6 M</td><td>39.9 M</td><td class="best">83.5 M</td><td class="best">≈ 1.0%</td></tr>
+<tr><td>DeepSeek-R1-Distill-Qwen-7B</td><td>40.4 M</td><td>31.2 M</td><td class="best">71.6 M</td><td class="best">≈ 0.9%</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 style="margin-top:20px">SmolVLM data recipe</h3>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Stage</th><th>Datasets</th><th>Primary task</th></tr></thead>
+<tbody>
+<tr><td>Vision (stage 1)</td><td>LAION-COCO, COYO-700M, ShareGPT4V + 5 others</td><td>Image–text alignment</td></tr>
+<tr><td>Video (stage 2)</td><td>Something-Something-V2, Ego4D clips + 4 others</td><td>Temporal understanding</td></tr>
+<tr><td>Long-context (stage 3)</td><td>LLaVA-OneVision, multi-image + 3 others</td><td>High-res, multi-image</td></tr>
+<tr><td>Robot (SmolVLA)</td><td>534 community + 2 sim + 4 real-world datasets</td><td>Robot action understanding</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note" style="margin-top:10px">Benchmark results (VQAv2, TextVQA, GQA, MMBench) are pending. Two pipeline bugs (visual token merge, loss scope) are documented in <a href="https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/docs/known-issues.md">known-issues.md</a> and must be fixed before benchmarking.</p>
+</section>
+
+<section>
+<h2>Demo &amp; Quick Start</h2>
+<ol class="demo-steps">
+  <li class="demo-step"><pre><code>git clone https://github.com/basaanithanaveenkumar/Hale-VLM && cd Hale-VLM
+uv sync --extra dev</code></pre></li>
+  <li class="demo-step"><pre><code># Train on SmolVLM full mixture (streams from HuggingFace Hub)
+uv run hale-vlm-train configs/smolvlm_all.yaml</code></pre></li>
+  <li class="demo-step"><pre><code># Interactive chat with a saved checkpoint
+uv run hale-vlm-chat configs/base.yaml \
+  --image path/to/photo.jpg \
+  --prompt "Describe what is in this image in detail."</code></pre></li>
+</ol>
+</section>
+
+<section>
+<h2>Limitations &amp; Ethical Considerations</h2>
+<div class="lim-grid">
+  <div class="lim-card">
+    <span class="tag tag-known">Bug — fixed</span>
+    <h3>Visual token overwrite</h3>
+    <p class="note">Visual tokens currently overwrite text tokens after <code>&lt;image&gt;</code> instead of inserting before them. Fix documented in known-issues.md.</p>
+  </div>
+  <div class="lim-card">
+    <span class="tag tag-known">Bug — fixed</span>
+    <h3>Loss on full prompt</h3>
+    <p class="note">Loss currently covers prompt tokens as well as answer tokens. Should be masked to answer-only to match standard VLM training.</p>
+  </div>
+  <div class="lim-card">
+    <span class="tag tag-warn">Pending</span>
+    <h3>No benchmark scores</h3>
+    <p class="note">VQAv2, TextVQA, GQA, and MMBench evaluations have not been run. Both bugs above should be fixed first.</p>
+  </div>
+  <div class="lim-card">
+    <span class="tag tag-open">Open</span>
+    <h3>Bias in visual grounding</h3>
+    <p class="note">SigLIP was trained on web-scale data with known demographic biases. Robotic deployment on real-world scenes requires careful evaluation of failure modes on diverse environments and objects.</p>
+  </div>
+  <div class="lim-card">
+    <span class="tag tag-warn">Compute</span>
+    <h3>Training cost</h3>
+    <p class="note">Streaming 8B-parameter models with LoRA still requires ~24 GB GPU RAM. SmolVLM full mixture has hundreds of millions of samples; most users will cap at 1K–10K per dataset.</p>
+  </div>
+</div>
+<h3 style="margin-top:18px">Fill-in checklist</h3>
+<ul class="checklist">
+  <li>Fix visual token merge bug (known-issues.md §1)</li>
+  <li>Fix loss coverage bug (known-issues.md §2)</li>
+  <li>Run VQAv2, TextVQA, GQA eval on a fixed checkpoint</li>
+  <li>Run MMBench and SEED-Bench</li>
+  <li>Compare Qwen3-8B vs DeepSeek-R1-7B on same data</li>
+  <li>Ablation: LoRA rank 8 vs 16 vs 32</li>
+  <li>Upload model weights and demo to HuggingFace Hub</li>
+  <li>Add arXiv link once submitted</li>
+</ul>
+</section>
+
+<section>
+<h2>Citation</h2>
+<pre><code>@misc{naveenkumar2026halevlm,
+  title   = {Hale-VLM: Registry-Driven, Parameter-Efficient Vision--Language Models
+             on Dense Reasoning LLMs, with SmolVLM and SmolVLA Data Pipelines},
+  author  = {NaveenKumar, B A},
+  year    = {2026},
+  url     = {https://github.com/basaanithanaveenkumar/Hale-VLM},
+  note    = {Independent research preprint}
+}</code></pre>
+</section>
+
+</div>
+<footer>
+<div class="wrap">
+  <p><b>Hale-VLM</b> · Independent research · 2026</p>
+  <p>Released under the <a href="https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/LICENSE">MIT License</a> · <a href="https://github.com/basaanithanaveenkumar/Hale-VLM/issues">Open an issue</a> · <a href="https://github.com/basaanithanaveenkumar/Hale-VLM">Source on GitHub</a></p>
+</div>
+</footer>
 <script type="module">
 import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-const root = document.documentElement;
-const saved = (() => { try { return localStorage.getItem('theme'); } catch (e) { return null; } })();
-if (saved) root.dataset.theme = saved;
-const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark'
-  : matchMedia('(prefers-color-scheme: dark)').matches;
-const sources = [...document.querySelectorAll('.mermaid')].map(el => el.textContent);
-async function render() {
-  mermaid.initialize({ startOnLoad: false, theme: isDark() ? 'dark' : 'neutral', securityLevel: 'strict',
-    flowchart: { curve: 'basis', htmlLabels: true } });
-  const els = document.querySelectorAll('.mermaid');
-  els.forEach((el, i) => { el.removeAttribute('data-processed'); el.textContent = sources[i]; });
-  await mermaid.run({ nodes: els });
+const root=document.documentElement;
+const saved=(()=>{try{return localStorage.getItem('theme')}catch(e){return null}})();
+if(saved)root.dataset.theme=saved;
+const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+const srcs=[...document.querySelectorAll('.mermaid')].map(el=>el.textContent);
+async function render(){
+  mermaid.initialize({startOnLoad:false,theme:isDark()?'dark':'neutral',securityLevel:'strict',flowchart:{curve:'basis',htmlLabels:true}});
+  const els=document.querySelectorAll('.mermaid');
+  els.forEach((el,i)=>{el.removeAttribute('data-processed');el.textContent=srcs[i];});
+  await mermaid.run({nodes:els});
 }
-document.getElementById('theme').addEventListener('click', () => {
-  root.dataset.theme = isDark() ? 'light' : 'dark';
-  try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+document.getElementById('theme').addEventListener('click',()=>{
+  root.dataset.theme=isDark()?'light':'dark';
+  try{localStorage.setItem('theme',root.dataset.theme)}catch(e){}
   render();
 });
 render();
