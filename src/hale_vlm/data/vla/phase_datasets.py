@@ -1,20 +1,26 @@
-"""VLA phase-tagged pretrain dataset registrations for Hale-VLM.
+"""VLA phase-tagged dataset registrations for Hale-VLM (all three phases).
 
 All adapters here are registered in VLA_PHASE_DATASETS (see vla/phase_registry.py),
 NOT in the SmolVLA VLA_DATASETS registry, so existing tests are unaffected.
 
-Pretrain corpus (12 datasets) — the standard VLA pretraining stack plus
-aggregated packs and human-video-based sources:
+Phase 1 — PRETRAIN (18 datasets):
+  Core cross-embodiment:
+    open-x-embodiment, bridge-v2, fractal-rt1, bc-z,
+    droid-v1, libero-pretrain
+  Aggregated packs:
+    openEAI-dataset, lerobot-community-v3, robogene
+  Human-video / tactile:
+    being-h0, agibot-world, h-tac-ttp
+  Synthetic / simulation:
+    syngrasp-1b, robocasa
+  Egocentric human video (cross-embodiment bridge):
+    ego4d, vitra, egovla
 
-Core / flagship cross-embodiment:
-  open-x-embodiment, bridge-v2, fractal-rt1, bc-z,
-  droid-v1, libero-pretrain
+Phase 2 — MID_TRAIN (5 datasets, embodied VLM — no action labels):
+  refspatial, embspatial-bench, robo2vlm, robopoint, vln-r2r
 
-Aggregated / preprocessed packs:
-  openEAI-dataset, lerobot-community-v3, robogene
-
-Human-video and tactile pretraining:
-  being-h0, agibot-world, h-tac-ttp
+Phase 3 — POST_TRAIN (4 local-collection datasets):
+  flowpro-pairs, apo-interventions, hindsight-relabeled, dagger-corrections
 """
 
 from __future__ import annotations
@@ -257,7 +263,288 @@ class HTacTTPAdapter(VLADataAdapter):
     )
 
 
+# ---------------------------------------------------------------------------
+# Phase 1 — PRETRAIN: synthetic / simulation corpora
+# ---------------------------------------------------------------------------
+
+
+@register_vla_phase_dataset("syngrasp-1b")
+class SynGrasp1BAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="syngrasp-1b",
+        hf_path="GraspVLA/SynGrasp-1B",
+        stage=VLAStage.SIMULATION,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.PRETRAIN,
+        description=(
+            "SynGrasp-1B — 1B procedurally-generated grasp scenes with randomised "
+            "objects, lighting, and camera poses (GraspVLA). "
+            "Provides robust geometric pretraining at scale."
+        ),
+        paper_reference="GraspVLA (2025) SynGrasp-1B",
+        episodes=1_000_000_000,
+        trust_remote_code=True,
+    )
+
+
+@register_vla_phase_dataset("robocasa")
+class RoboCasaAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="robocasa",
+        hf_path="lerobot/robocasa",
+        stage=VLAStage.SIMULATION,
+        embodiment=RobotEmbodiment.PANDA,
+        phase=VLATrainingPhase.PRETRAIN,
+        description=(
+            "RoboCasa — scalable household manipulation rollouts across diverse "
+            "kitchen and living room layouts. "
+            "Enables generalist policy pretraining at simulation scale."
+        ),
+        paper_reference="Nasiriany et al. (2024) RoboCasa",
+        episodes=100_000,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Phase 1 — PRETRAIN: egocentric human video (cross-embodiment bridge)
+# ---------------------------------------------------------------------------
+
+
+@register_vla_phase_dataset("ego4d")
+class Ego4DAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="ego4d",
+        hf_path="facebook/ego4d",
+        stage=VLAStage.COMMUNITY,
+        embodiment=RobotEmbodiment.HUMAN,
+        phase=VLATrainingPhase.PRETRAIN,
+        description=(
+            "Ego4D — 3,600 hours of first-person video from 931 participants across "
+            "74 worldwide scenarios. Low-cost VLA pretraining source; "
+            "human-to-robot transfer via diverse egocentric observations."
+        ),
+        paper_reference="Grauman et al. (2022) Ego4D",
+        episodes=9_600,
+        trust_remote_code=True,
+    )
+
+
+@register_vla_phase_dataset("vitra")
+class VITRAAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="vitra",
+        hf_path="VITRA-Dataset/VITRA",
+        stage=VLAStage.COMMUNITY,
+        embodiment=RobotEmbodiment.HUMAN,
+        phase=VLATrainingPhase.PRETRAIN,
+        description=(
+            "VITRA (ICRA 2026) — converts in-the-wild human hand videos into "
+            "(image, instruction, action) tuples for VLA pretraining. "
+            "Explicitly bridges the embodiment gap via egocentric hand motion parsing."
+        ),
+        paper_reference="VITRA (2026) ICRA",
+        episodes=500_000,
+    )
+
+
+@register_vla_phase_dataset("egovla")
+class EgoVLAAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="egovla",
+        hf_path="EgoVLA/EgoVLA",
+        stage=VLAStage.COMMUNITY,
+        embodiment=RobotEmbodiment.HUMAN,
+        phase=VLATrainingPhase.PRETRAIN,
+        description=(
+            "EgoVLA — large-scale egocentric human video corpus for VLA pretraining. "
+            "Overcomes robot data scarcity via human-to-robot cross-embodiment transfer."
+        ),
+        paper_reference="EgoVLA (2025)",
+        episodes=1_000_000,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 — MID_TRAIN: embodied-oriented VLM data (no action labels)
+# Key reference: EmbodiedMidtrain (2026) proximity-based data engine
+# ---------------------------------------------------------------------------
+
+
+@register_vla_phase_dataset("refspatial")
+class RefSpatialAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="refspatial",
+        hf_path="RefSpatial/RefSpatial",
+        stage=VLAStage.COMMUNITY,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.MID_TRAIN,
+        description=(
+            "RefSpatial — spatial referring and reasoning dataset for embodied agents. "
+            "No action labels; trains VLM spatial grounding needed for robot control."
+        ),
+        paper_reference="RefSpatial (2025)",
+        episodes=100_000,
+    )
+
+
+@register_vla_phase_dataset("embspatial-bench")
+class EmbSpatialBenchAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="embspatial-bench",
+        hf_path="EmbSpatial/EmbSpatial-Bench",
+        stage=VLAStage.COMMUNITY,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.MID_TRAIN,
+        description=(
+            "EmbSpatial-Bench — embodied spatial understanding VQA. "
+            "Tests relative positions, distances, directions in 3D scene context. "
+            "Used as mid-train alignment data (EmbodiedMidtrain 2026)."
+        ),
+        paper_reference="EmbSpatial (2024)",
+        episodes=10_000,
+    )
+
+
+@register_vla_phase_dataset("robo2vlm")
+class Robo2VLMAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="robo2vlm",
+        hf_path="Robo2VLM/Robo2VLM",
+        stage=VLAStage.COMMUNITY,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.MID_TRAIN,
+        description=(
+            "Robo2VLM — robotic VQA generated from robot observation trajectories. "
+            "No action labels; aligns VLM priors to robot-camera viewpoints and "
+            "manipulation contexts (500K Q&A pairs)."
+        ),
+        paper_reference="Robo2VLM (2025)",
+        episodes=500_000,
+    )
+
+
+@register_vla_phase_dataset("robopoint")
+class RoboPointAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="robopoint",
+        hf_path="wentao-yuan/robopoint-data",
+        stage=VLAStage.COMMUNITY,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.MID_TRAIN,
+        description=(
+            "RoboPoint — spatial affordance prediction: given image + instruction, "
+            "predict the target 2D manipulation point. "
+            "Trains spatial reasoning without requiring low-level action labels."
+        ),
+        paper_reference="Yuan et al. (2024) RoboPoint",
+        episodes=600_000,
+    )
+
+
+@register_vla_phase_dataset("vln-r2r")
+class VLNR2RAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="vln-r2r",
+        hf_path="prs-eth/room_across_the_room",
+        stage=VLAStage.SIMULATION,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.MID_TRAIN,
+        description=(
+            "R2R (Room-to-Room) VLN — vision-and-language navigation trajectories "
+            "in photorealistic Matterport3D environments. "
+            "Trajectory-centric supervision for spatial grounding and path following."
+        ),
+        paper_reference="Anderson et al. (2018) R2R",
+        episodes=22_000,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 — POST_TRAIN: preference / DPO / DAgger / offline-RL datasets
+# These are locally-collected; hf_path is None and episodes is None.
+# The registry skips them when no local_path is supplied.
+# ---------------------------------------------------------------------------
+
+
+@register_vla_phase_dataset("flowpro-pairs")
+class FlowPROPairsAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="flowpro-pairs",
+        hf_path=None,
+        stage=VLAStage.REAL_WORLD,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.POST_TRAIN,
+        description=(
+            "FlowPRO rollback preference pairs — a single operator intervention "
+            "yields a (winner, loser) trajectory pair via operator-chosen rollback "
+            "horizon. No separate positive/negative recordings needed. "
+            "Requires local robot deployment to collect."
+        ),
+        paper_reference="FlowPRO (2025)",
+        episodes=None,
+        requires_local_collection=True,
+    )
+
+
+@register_vla_phase_dataset("apo-interventions")
+class APOInterventionsAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="apo-interventions",
+        hf_path=None,
+        stage=VLAStage.REAL_WORLD,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.POST_TRAIN,
+        description=(
+            "APO (Action Preference Optimisation) — human-in-the-loop intervention "
+            "preference data with adaptive reweighting. "
+            "Learns from sub-optimal correction trajectories. Requires local collection."
+        ),
+        paper_reference="APO (2025)",
+        episodes=None,
+        requires_local_collection=True,
+    )
+
+
+@register_vla_phase_dataset("hindsight-relabeled")
+class HindsightRelabeledAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="hindsight-relabeled",
+        hf_path=None,
+        stage=VLAStage.REAL_WORLD,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.POST_TRAIN,
+        description=(
+            "LfH (Learning from Hindsight) hindsight-relabeled rollouts — "
+            "failed trajectories are scored against tasks actually achieved and "
+            "reused as positives. Useful when early policies rarely succeed."
+        ),
+        paper_reference="LfH (2024)",
+        episodes=None,
+        requires_local_collection=True,
+    )
+
+
+@register_vla_phase_dataset("dagger-corrections")
+class DAggerCorrectionsAdapter(VLADataAdapter):
+    spec = VLADatasetSpec(
+        name="dagger-corrections",
+        hf_path=None,
+        stage=VLAStage.REAL_WORLD,
+        embodiment=RobotEmbodiment.MIXED,
+        phase=VLATrainingPhase.POST_TRAIN,
+        description=(
+            "DAgger-style interactive correction trajectories — human operator "
+            "takes over at failure modes, producing corrective demos that cover "
+            "the state distribution induced by the current policy."
+        ),
+        paper_reference="Ross et al. (2011) DAgger",
+        episodes=None,
+        requires_local_collection=True,
+    )
+
+
 __all__ = [
+    # Phase 1 — PRETRAIN: core cross-embodiment
     "AgibotWorldAdapter",
     "BCZAdapter",
     "BeingH0Adapter",
@@ -270,4 +557,22 @@ __all__ = [
     "OpenEAIDatasetAdapter",
     "OpenXEmbodimentAdapter",
     "RoboGeneAdapter",
+    # Phase 1 — PRETRAIN: synthetic / simulation
+    "RoboCasaAdapter",
+    "SynGrasp1BAdapter",
+    # Phase 1 — PRETRAIN: egocentric human video
+    "Ego4DAdapter",
+    "EgoVLAAdapter",
+    "VITRAAdapter",
+    # Phase 2 — MID_TRAIN: embodied VLM (no action labels)
+    "EmbSpatialBenchAdapter",
+    "RefSpatialAdapter",
+    "Robo2VLMAdapter",
+    "RoboPointAdapter",
+    "VLNR2RAdapter",
+    # Phase 3 — POST_TRAIN: preference / DAgger / offline-RL
+    "APOInterventionsAdapter",
+    "DAggerCorrectionsAdapter",
+    "FlowPROPairsAdapter",
+    "HindsightRelabeledAdapter",
 ]

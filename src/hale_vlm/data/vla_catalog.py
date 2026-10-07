@@ -66,7 +66,7 @@ EMBODIMENT_BY_STAGE: dict[VLAStage, RobotEmbodiment] = {
 # These live in a separate VLA_PHASE_DATASETS registry.
 # ---------------------------------------------------------------------------
 
-# Phase 1 — PRETRAIN: core + aggregated + human-video sources
+# Phase 1 — PRETRAIN: core + aggregated + human-video + synthetic + egocentric
 PRETRAIN_VLA_DATASETS: tuple[str, ...] = (
     # Core / flagship cross-embodiment corpora
     "open-x-embodiment",      # OXE: 22 robot types, ~2M demos
@@ -83,20 +83,50 @@ PRETRAIN_VLA_DATASETS: tuple[str, ...] = (
     "being-h0",               # Being-H0: large-scale human video pretraining
     "agibot-world",           # AgiBot World: bimanual real-world manip (X-VLA)
     "h-tac-ttp",              # H-Tac TTP: tactile pretraining
+    # Synthetic / simulation at scale (GraspVLA, RoboCasa)
+    "syngrasp-1b",            # SynGrasp-1B: 1B procedural grasp scenes
+    "robocasa",               # RoboCasa: scalable household manipulation sim
+    # Egocentric human video (cross-embodiment bridge)
+    "ego4d",                  # Ego4D: 3,600 h first-person video, 74 scenarios
+    "vitra",                  # VITRA (ICRA 2026): hand video → (img, instr, action)
+    "egovla",                 # EgoVLA: large-scale egocentric video
+)
+
+# Phase 2 — MID_TRAIN: embodied VLM data (no action labels) + spatial reasoning
+MID_TRAIN_VLA_DATASETS: tuple[str, ...] = (
+    # Embodied spatial / affordance reasoning (EmbodiedMidtrain 2026)
+    "refspatial",             # RefSpatial: spatial referring and reasoning
+    "embspatial-bench",       # EmbSpatial-Bench: embodied spatial understanding VQA
+    "robo2vlm",               # Robo2VLM: robotic VQA from robot observations
+    "robopoint",              # RoboPoint: spatial affordance prediction
+    "vln-r2r",                # R2R: vision-language navigation trajectories
+)
+
+# Phase 3 — POST_TRAIN: preference/DPO + offline-RL + DAgger (local-collection)
+POST_TRAIN_VLA_DATASETS: tuple[str, ...] = (
+    "flowpro-pairs",          # FlowPRO: rollback preference pairs (winner/loser)
+    "apo-interventions",      # APO: human-in-the-loop correction preferences
+    "hindsight-relabeled",    # LfH: hindsight relabeled failed rollouts
+    "dagger-corrections",     # DAgger: gated-takeover correction trajectories
 )
 
 VLA_PHASE_NOTES: dict[VLATrainingPhase, str] = {
     VLATrainingPhase.PRETRAIN: (
         "Large-scale cross-embodiment robot teleoperation + aggregated packs "
-        "+ human-video pretraining. Standard OXE + DROID + BridgeV2 baseline "
-        "plus RoboGene and LeRobot Community v3 for breadth."
+        "+ human-video pretraining + synthetic sim (SynGrasp-1B, RoboCasa) "
+        "+ egocentric human video (Ego4D, VITRA, EgoVLA). "
+        "Embodiment diversity is a first-class concern at this stage; "
+        "human-to-robot transfer emerges from diverse pretraining."
     ),
     VLATrainingPhase.MID_TRAIN: (
-        "Domain-specific manipulation data for the target embodiment family. "
-        "Adapts pretrained features to workspace and object distribution."
+        "Embodied alignment / VLM-to-VLA bridging. "
+        "Embodied-oriented VLM data (no action labels): spatial referring, "
+        "robotic VQA, affordance prediction, VLN trajectories. "
+        "Key reference: EmbodiedMidtrain (2026) proximity-based data engine."
     ),
     VLATrainingPhase.POST_TRAIN: (
-        "Task-specific fine-tuning on a small set of target tasks. "
-        "Maximises success rate on the deployment benchmark."
+        "Task-specific SFT + preference / DPO-style data + DAgger corrections. "
+        "FlowPRO rollback pairs, APO human interventions, LfH hindsight relabeling, "
+        "and DAgger-style corrections. All local-collection — skipped if data_root unset."
     ),
 }
