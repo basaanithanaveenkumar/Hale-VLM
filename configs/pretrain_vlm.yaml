@@ -1,0 +1,12 @@
+# Phase 1 — VLM Pre-training
+# Large-scale weakly-supervised image-text alignment.
+# Datasets: laion-aesthetics-v2-5plus, cc3m, cc12m, datacomp-1b, wit, redcaps
+
+inherits: base.yaml
+
+data:
+  source: phase_registry
+  registry_phase: pretrain
+  streaming: true
+  prefetch_workers: 4
+  max_samples_per_dataset: null

@@ -1,0 +1,12 @@
+# Phase 3 — VLM Post-Training (instruction-following SFT)
+# Datasets: llava-instruct-665k, textvqa, scienceqa, chartqa, infographics-vqa,
+#           seed-bench, llava-plus
+
+inherits: base.yaml
+
+data:
+  source: phase_registry
+  registry_phase: post_train
+  streaming: true
+  prefetch_workers: 2
+  max_samples_per_dataset: 100000

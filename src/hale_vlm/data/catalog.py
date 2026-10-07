@@ -1,8 +1,8 @@
-"""SmolVLM paper dataset catalog and stage presets."""
+"""SmolVLM paper dataset catalog, stage presets, and training-phase presets."""
 
 from __future__ import annotations
 
-from hale_vlm.data.types import TrainingStage, VideoCategory, VisionCategory
+from hale_vlm.data.types import TrainingPhase, TrainingStage, VideoCategory, VisionCategory
 
 # Vision stage (§4.1) — Laurençon et al. (2024) mixture + MathWriting
 SMOLVLM_VISION_DATASETS: tuple[str, ...] = (
@@ -70,4 +70,42 @@ VIDEO_CATEGORY_NOTES: dict[VideoCategory, str] = {
     VideoCategory.NARRATIVE: "MovieChat, FineVideo",
     VideoCategory.MULTI_IMAGE: "M4-Instruct, Mammoth",
     VideoCategory.TEXT_SFT: "Magpie (Xu et al., 2024); 14% text in video stage",
+}
+
+# ---------------------------------------------------------------------------
+# Training-phase dataset groups (orthogonal to SmolVLM stage taxonomy)
+# Registered in PHASE_DATASETS (see phase_registry.py), not DATASETS.
+# ---------------------------------------------------------------------------
+
+PRETRAIN_VLM_DATASETS: tuple[str, ...] = (
+    "laion-aesthetics-v2-5plus",
+    "cc3m",
+    "cc12m",
+    "datacomp-1b",
+    "wit",
+    "redcaps",
+)
+
+MID_TRAIN_VLM_DATASETS: tuple[str, ...] = (
+    "llava-pretrain-558k",
+    "sharegpt4v-pt",
+    "blip-laion-cc-sbu-558k",
+    "recap-datacomp-1b",
+    "allava-vflan",
+)
+
+POST_TRAIN_VLM_DATASETS: tuple[str, ...] = (
+    "llava-instruct-665k",
+    "textvqa",
+    "scienceqa",
+    "chartqa",
+    "infographics-vqa",
+    "seed-bench",
+    "llava-plus",
+)
+
+VLM_PHASE_PRESETS: dict[TrainingPhase, tuple[str, ...]] = {
+    TrainingPhase.PRETRAIN: PRETRAIN_VLM_DATASETS,
+    TrainingPhase.MID_TRAIN: MID_TRAIN_VLM_DATASETS,
+    TrainingPhase.POST_TRAIN: POST_TRAIN_VLM_DATASETS,
 }

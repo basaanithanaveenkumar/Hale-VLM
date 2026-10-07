@@ -26,6 +26,14 @@ class TrainingStage(StrEnum):
     REJECTED = "rejected"
 
 
+class TrainingPhase(StrEnum):
+    """High-level training phase: pretrain → mid-train → post-train."""
+
+    PRETRAIN = "pretrain"
+    MID_TRAIN = "mid_train"
+    POST_TRAIN = "post_train"
+
+
 class VisionCategory(StrEnum):
     """Vision-stage mixture buckets (Figure 8, SmolVLM paper)."""
 
@@ -70,6 +78,8 @@ class DatasetSpec:
     conversation_field: str | None = "conversations"
     streaming: bool = True
     trust_remote_code: bool = False
+    # High-level training phase (pretrain / mid_train / post_train). Optional.
+    phase: TrainingPhase | None = None
 
 
 @dataclass
@@ -105,6 +115,14 @@ class VLAStage(StrEnum):
     COMMUNITY = "community"
     SIMULATION = "simulation"
     REAL_WORLD = "real_world"
+
+
+class VLATrainingPhase(StrEnum):
+    """High-level training phase for VLA robot policies."""
+
+    PRETRAIN = "pretrain"
+    MID_TRAIN = "mid_train"
+    POST_TRAIN = "post_train"
 
 
 class RobotEmbodiment(StrEnum):
@@ -147,6 +165,8 @@ class VLADatasetSpec:
     streaming: bool = True
     trust_remote_code: bool = False
     episodes: int | None = None
+    # High-level training phase (pretrain / mid_train / post_train). Optional.
+    phase: VLATrainingPhase | None = None
 
 
 @dataclass
