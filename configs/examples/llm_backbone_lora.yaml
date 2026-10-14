@@ -1,0 +1,15 @@
+# Any fine-tunable LLM from HaleBlocks' registry as the VLM backbone, LoRA-tuned.
+# Names: python -c "from hale_core.nn.llm import list_llm_backbones; print(list_llm_backbones())"
+# Doc: HaleBlocks docs/llm_backbones.md
+inherits: ../base.yaml
+model:
+  llm:
+    backbone: qwen2.5-1.5b          # smollm2-360m | qwen3-1.7b | llama3.2-3b | phi4-mini | hale-autoregressive ...
+    # checkpoint: ckpt/ar/last.pt   # required for hale-* backbones (a HaloDiffusionLLM checkpoint)
+    dtype: bfloat16
+    use_lora: true                  # adapters only; use_lora: false + freeze_llm: false = full fine-tuning
+    lora_r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
+    lora_train_embeddings: false
+    gradient_checkpointing: true

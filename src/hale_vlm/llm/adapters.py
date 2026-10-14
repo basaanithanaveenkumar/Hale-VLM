@@ -1,4 +1,8 @@
-"""LoRA and parameter-freezing helpers for LLM fine-tuning."""
+"""LoRA and parameter-freezing helpers for LLM fine-tuning.
+
+The VLM's backbone is configured by HaleBlocks (``hale_core.nn.llm.configure_finetuning``);
+these helpers apply the same policy to an arbitrary module and count parameters.
+"""
 
 from __future__ import annotations
 
@@ -8,27 +12,23 @@ import torch.nn as nn
 from loguru import logger
 from peft import LoraConfig, get_peft_model
 
+from hale_core.nn.llm import get_llm_backbone_spec
+
 from hale_vlm.config.sections.llm import LLMConfig
 
-DEFAULT_LORA_TARGETS: dict[str, list[str]] = {
-    "qwen3-8b": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-    "deepseek-r1-qwen-7b": [
-        "q_proj",
-        "k_proj",
-        "v_proj",
-        "o_proj",
-        "gate_proj",
-        "up_proj",
-        "down_proj",
-    ],
-    "custom": ["q_proj", "k_proj", "v_proj", "o_proj"],
-}
+#: LoRA targets when ``lora_target_modules`` is unset and the backbone is ``custom``.
+CUSTOM_LORA_TARGETS: list[str] = ["q_proj", "k_proj", "v_proj", "o_proj"]
 
 
 def lora_target_modules(cfg: LLMConfig) -> list[str]:
+    """Explicit targets, else the registered backbone's defaults, else attention projections."""
     if cfg.lora_target_modules:
         return cfg.lora_target_modules
-    return DEFAULT_LORA_TARGETS.get(cfg.backbone, DEFAULT_LORA_TARGETS["custom"])
+    if cfg.backbone != "custom":
+        targets = list(get_llm_backbone_spec(cfg.backbone).lora_targets)
+        if targets:
+            return targets
+    return list(CUSTOM_LORA_TARGETS)
 
 
 def apply_lora(model: nn.Module, cfg: LLMConfig) -> nn.Module:

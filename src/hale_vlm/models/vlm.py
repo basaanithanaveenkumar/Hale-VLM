@@ -13,10 +13,11 @@ from hale_vlm.vision.encoders import build_vision_tower
 from hale_vlm.vision.projector import build_projector
 
 VLM_VARIANTS = ("qwen3_8b_vlm", "deepseek_r1_qwen_7b_vlm")
+"""Registered model variants; the LLM itself is any ``hale_core.nn.llm`` backbone (``model.llm.backbone``)."""
 
 
 class HaleVLM(nn.Module):
-    """Vision encoder + projector + dense LLM backbone."""
+    """Vision encoder + projector + any fine-tunable LLM backbone (LoRA / full / frozen)."""
 
     def __init__(self, vocab_size: int, cfg: VLMRunConfig | None = None, **kwargs) -> None:
         super().__init__()
@@ -26,14 +27,16 @@ class HaleVLM(nn.Module):
         self.cfg = cfg
         llm_cfg = resolve_llm_config(cfg.model.llm)
 
-        self.llm = build_llm_backbone(llm_cfg)
+        # The image placeholder is added while the backbone is built, *before* LoRA / freezing:
+        # resizing the vocabulary afterwards would leave the whole new embedding table trainable.
+        self.llm = build_llm_backbone(llm_cfg, special_tokens=[llm_cfg.image_token])
         self.vision = build_vision_tower(cfg.model.vision)
         self.projector = build_projector(
             self.vision.hidden_size,
             self.llm.hidden_size,
             cfg.model.vision,
         )
-        self.image_token_id = self._resolve_image_token_id(llm_cfg.image_token)
+        self.image_token_id = self.llm.special_token_ids[llm_cfg.image_token]
         self._log_trainable_summary()
 
     @property
@@ -56,11 +59,7 @@ class HaleVLM(nn.Module):
         if not self.cfg.model.vision.freeze_encoder:
             modules.insert(0, self.vision)
         trainable, total = count_parameters(*modules)
-        llm_mode = (
-            "lora"
-            if self.cfg.model.llm.use_lora
-            else ("frozen" if self.cfg.model.llm.freeze_llm else "full")
-        )
+        llm_mode = self.cfg.model.llm.finetune
         logger.info(
             "trainable components: vision_frozen={} llm_mode={} trainable={:,} / {:,}",
             self.cfg.model.vision.freeze_encoder,
@@ -72,15 +71,6 @@ class HaleVLM(nn.Module):
     @property
     def tokenizer(self):
         return self.llm.tokenizer
-
-    def _resolve_image_token_id(self, image_token: str) -> int:
-        tokenizer = self.llm.tokenizer
-        token_id = tokenizer.convert_tokens_to_ids(image_token)
-        if token_id == tokenizer.unk_token_id:
-            tokenizer.add_special_tokens({"additional_special_tokens": [image_token]})
-            self.llm.model.resize_token_embeddings(len(tokenizer))
-            token_id = tokenizer.convert_tokens_to_ids(image_token)
-        return int(token_id)
 
     def encode_images(self, pixel_values: torch.Tensor) -> torch.Tensor:
         vision_features = self.vision(pixel_values)

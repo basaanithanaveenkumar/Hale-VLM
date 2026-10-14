@@ -1,72 +1,57 @@
-"""HuggingFace LLM backbone loaders for supported dense transformers."""
+"""The VLM's language backbone: any fine-tunable LLM from HaleBlocks' registry."""
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from typing import Any
+
 import torch
 import torch.nn as nn
-from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Re-exported: the same classes HaleBlocks loads with; tests patch their ``from_pretrained``.
+from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: F401
+
+from hale_core.nn.llm import LanguageBackboneOutput, build_language_backbone, get_llm_backbone_spec
 
 from hale_vlm.config.sections.llm import LLMConfig
-from hale_vlm.llm.adapters import configure_llm_trainability
-
-LLM_PRESETS: dict[str, dict[str, str | bool]] = {
-    "qwen3-8b": {
-        "model_id": "Qwen/Qwen3-8B",
-        "reasoning_mode": False,
-    },
-    "deepseek-r1-qwen-7b": {
-        "model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
-        "reasoning_mode": True,
-    },
-}
-
-_DTYPE_MAP = {
-    "float32": torch.float32,
-    "float16": torch.float16,
-    "bfloat16": torch.bfloat16,
-}
 
 
 class LLMBackbone(nn.Module):
-    """Wrapper around a pretrained causal LM from HuggingFace."""
+    """VLM-facing facade over a HaleBlocks :class:`~hale_core.nn.llm.LanguageBackbone`.
 
-    def __init__(self, cfg: LLMConfig) -> None:
+    Special tokens (the image placeholder) are added **before** the fine-tuning policy is
+    applied: resizing the vocabulary creates new embedding parameters, which would otherwise
+    stay trainable under LoRA / freezing.
+
+    Args:
+        cfg: the ``model.llm`` section.
+        special_tokens: tokens to add to the tokenizer / embeddings (e.g. ``["<image>"]``).
+    """
+
+    def __init__(self, cfg: LLMConfig, special_tokens: Sequence[str] = ()) -> None:
         super().__init__()
         self.cfg = cfg
-        preset = LLM_PRESETS.get(cfg.backbone, {})
-        model_id = cfg.model_id or str(preset.get("model_id", ""))
-        dtype = _DTYPE_MAP[cfg.dtype]
+        self.core, self.special_token_ids = build_language_backbone(cfg.to_backbone_config(), special_tokens)
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            model_id,
-            trust_remote_code=cfg.trust_remote_code,
-        )
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
+    @property
+    def model(self) -> nn.Module:
+        """The trainable LM module: the (PEFT-wrapped) Hugging Face model, or the Hale backbone."""
+        return getattr(self.core, "model", self.core)
 
-        load_kwargs: dict = {
-            "trust_remote_code": cfg.trust_remote_code,
-            "torch_dtype": dtype,
-        }
-        if cfg.attn_implementation:
-            load_kwargs["attn_implementation"] = cfg.attn_implementation
-
-        base_model = AutoModelForCausalLM.from_pretrained(model_id, **load_kwargs)
-        self.model = configure_llm_trainability(base_model, cfg)
+    @property
+    def tokenizer(self) -> Any:
+        return self.core.tokenizer
 
     @property
     def hidden_size(self) -> int:
-        return int(self.model.config.hidden_size)
+        return self.core.hidden_size
 
     @property
     def vocab_size(self) -> int:
-        return int(self.model.config.vocab_size)
+        return self.core.vocab_size
 
     def embed_tokens(self, input_ids: torch.Tensor) -> torch.Tensor:
-        base = self.model
-        if hasattr(base, "get_base_model"):
-            base = base.get_base_model()
-        return base.get_input_embeddings()(input_ids)
+        return self.core.embed_tokens(input_ids)
 
     def forward(
         self,
@@ -75,28 +60,34 @@ class LLMBackbone(nn.Module):
         input_ids: torch.Tensor | None = None,
         attention_mask: torch.Tensor | None = None,
         labels: torch.Tensor | None = None,
-    ):
-        return self.model(
-            input_ids=input_ids,
-            inputs_embeds=inputs_embeds,
-            attention_mask=attention_mask,
-            labels=labels,
-            return_dict=True,
+    ) -> LanguageBackboneOutput:
+        return self.core(
+            input_ids=input_ids, inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels
         )
+
+    def generate(self, **kwargs: Any) -> torch.Tensor:
+        """Text generation (Hugging Face backbones)."""
+        if not hasattr(self.core, "generate"):
+            raise NotImplementedError(f"{self.cfg.backbone} does not support generate()")
+        return self.core.generate(**kwargs)
 
 
 def resolve_llm_config(cfg: LLMConfig) -> LLMConfig:
-    """Apply backbone presets (model_id, reasoning flags) when using named backbones."""
-    preset = LLM_PRESETS.get(cfg.backbone)
-    if preset is None:
+    """Fill ``model_id`` / ``reasoning_mode`` from the registered backbone.
+
+    ``model_id`` is replaced by the registered repo when left at its default; ``reasoning_mode``
+    is switched on for reasoning-distilled backbones (DeepSeek-R1-Distill).
+    """
+    if cfg.backbone == "custom":
         return cfg
-    updates = {}
-    if cfg.model_id == LLMConfig.model_fields["model_id"].default:
-        updates["model_id"] = str(preset["model_id"])
-    if not cfg.reasoning_mode and preset.get("reasoning_mode"):
+    spec = get_llm_backbone_spec(cfg.backbone)
+    updates: dict[str, Any] = {}
+    if spec.source == "hf" and cfg.model_id == LLMConfig.model_fields["model_id"].default:
+        updates["model_id"] = spec.model_id
+    if spec.reasoning and not cfg.reasoning_mode:
         updates["reasoning_mode"] = True
     return cfg.model_copy(update=updates) if updates else cfg
 
 
-def build_llm_backbone(cfg: LLMConfig) -> LLMBackbone:
-    return LLMBackbone(resolve_llm_config(cfg))
+def build_llm_backbone(cfg: LLMConfig, special_tokens: Sequence[str] = ()) -> LLMBackbone:
+    return LLMBackbone(resolve_llm_config(cfg), special_tokens)

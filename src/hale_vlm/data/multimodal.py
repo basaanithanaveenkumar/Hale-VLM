@@ -13,11 +13,12 @@ import torch
 import torch.distributed as dist
 from datasets import load_dataset
 from hale_core.data.webdataset import WebDatasetAdapter
+from hale_core.nn.llm import load_backbone_tokenizer
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset, IterableDataset
 from torch.utils.data.distributed import DistributedSampler
 from torchvision import transforms
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer  # noqa: F401 - patched by tests; load_backbone_tokenizer uses it
 
 from hale_vlm.config.run import VLMRunConfig
 from hale_vlm.data.registry_stream import iter_registry_vlm_samples
@@ -193,13 +194,9 @@ class MultimodalDataModule:
     def __init__(self, cfg: VLMRunConfig, tokenizer=None) -> None:
         self.cfg = cfg
         if tokenizer is None:
-            llm_cfg = resolve_llm_config(cfg.model.llm)
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                llm_cfg.model_id,
-                trust_remote_code=llm_cfg.trust_remote_code,
-            )
-            if self.tokenizer.pad_token is None:
-                self.tokenizer.pad_token = self.tokenizer.eos_token
+            # The backbone's own tokenizer (Hub repo, or the one a HaloDiffusionLLM checkpoint
+            # was trained with), so token ids always match the model's vocabulary.
+            self.tokenizer = load_backbone_tokenizer(resolve_llm_config(cfg.model.llm).to_backbone_config())
         else:
             self.tokenizer = tokenizer
         self._train: Dataset | IterableDataset | None = None

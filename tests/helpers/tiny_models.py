@@ -27,6 +27,9 @@ class TinyTokenizer:
     def __len__(self) -> int:
         return self.vocab_size
 
+    def get_vocab(self) -> dict[str, int]:
+        return {"<pad>": 0, "<unk>": 1, "<eos>": 2, "<image>": 3}
+
     def convert_tokens_to_ids(self, token: str) -> int:
         if token == "<image>":
             return 3
@@ -108,7 +111,10 @@ class TinyCausalLM(nn.Module):
     def set_input_embeddings(self, value):
         self.embed_tokens_layer = value
 
-    def resize_token_embeddings(self, new_size: int):
+    def get_output_embeddings(self):
+        return self.lm_head
+
+    def resize_token_embeddings(self, new_size: int, **_kwargs):
         old = self.embed_tokens_layer
         new = nn.Embedding(new_size, self.config.hidden_size)
         new.weight.data[: old.num_embeddings] = old.weight.data
@@ -126,13 +132,15 @@ class TinyCausalLM(nn.Module):
         attention_mask=None,
         labels=None,
         return_dict=True,
+        output_hidden_states=False,
         **_kwargs,
     ):
         if inputs_embeds is None:
             x = self.embed_tokens_layer(input_ids)
         else:
             x = inputs_embeds
-        logits = self.lm_head(self._attend(x))
+        hidden = self._attend(x)
+        logits = self.lm_head(hidden)
         loss = None
         if labels is not None:
             loss = F.cross_entropy(
@@ -142,7 +150,8 @@ class TinyCausalLM(nn.Module):
             )
         # A real HF ModelOutput (dict-like): DDP finds the output tensors in it, which it needs
         # to track parameter usage; an ad-hoc object hides them and breaks DDP.
-        return CausalLMOutput(loss=loss, logits=logits)
+        hidden_states = (x, hidden) if output_hidden_states else None
+        return CausalLMOutput(loss=loss, logits=logits, hidden_states=hidden_states)
 
     def _attend(self, x: torch.Tensor) -> torch.Tensor:
         """Single-head causal self-attention: uses q/k/v/o like a real decoder layer, so LoRA
