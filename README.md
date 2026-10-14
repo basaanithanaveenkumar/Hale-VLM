@@ -45,6 +45,19 @@ Vision-language models built on Qwen3 and DeepSeek-R1 LLM backbones, powered by 
 
 See the Halo-VLM README for install and usage.
 
+## Scaling out: Ray Train + WebDataset
+
+Both are off by default (`uv sync --extra distributed`):
+
+```yaml
+train:
+  ray: {enabled: true, num_workers: 8, use_gpu: true}    # DDP on Ray workers, fault tolerant
+data:
+  webdataset: {enabled: true, root: data/webdataset}     # encode once -> tar shards -> stream
+```
+
+`hale-vlm-train configs/examples/ray_webdataset.yaml` · details in [docs/distributed.md](docs/distributed.md).
+
 ## Resources
 
 | | |

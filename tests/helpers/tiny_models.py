@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from transformers.modeling_outputs import CausalLMOutput
 
 
 @dataclass
@@ -131,8 +132,7 @@ class TinyCausalLM(nn.Module):
             x = self.embed_tokens_layer(input_ids)
         else:
             x = inputs_embeds
-        x = self.o_proj(self.v_proj(x))
-        logits = self.lm_head(x)
+        logits = self.lm_head(self._attend(x))
         loss = None
         if labels is not None:
             loss = F.cross_entropy(
@@ -140,14 +140,22 @@ class TinyCausalLM(nn.Module):
                 labels.view(-1),
                 ignore_index=-100,
             )
-        return type("LMOutput", (), {"loss": loss, "logits": logits})()
+        # A real HF ModelOutput (dict-like): DDP finds the output tensors in it, which it needs
+        # to track parameter usage; an ad-hoc object hides them and breaks DDP.
+        return CausalLMOutput(loss=loss, logits=logits)
+
+    def _attend(self, x: torch.Tensor) -> torch.Tensor:
+        """Single-head causal self-attention: uses q/k/v/o like a real decoder layer, so LoRA
+        adapters on every projection are trained (and none is "unused" under DDP)."""
+        q, k, v = self.q_proj(x), self.k_proj(x), self.v_proj(x)
+        return self.o_proj(F.scaled_dot_product_attention(q, k, v, is_causal=True))
 
     def generate(self, inputs_embeds, attention_mask=None, max_new_tokens=16, **_kwargs):
         batch, seq_len, hidden = inputs_embeds.shape
         generated = []
         state = inputs_embeds
         for _ in range(max_new_tokens):
-            logits = self.lm_head(self.o_proj(self.v_proj(state)))
+            logits = self.lm_head(self._attend(state))
             next_token = logits[:, -1].argmax(dim=-1, keepdim=True)
             generated.append(next_token)
             next_embed = self.embed_tokens_layer(next_token)

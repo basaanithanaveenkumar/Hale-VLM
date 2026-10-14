@@ -1,0 +1,27 @@
+# VLM fine-tuning on a Ray cluster, streaming encoded image/text samples from WebDataset shards.
+#
+#   uv sync --extra distributed          # ray[train] + webdataset (through hale-blocks)
+#   hale-vlm-train configs/examples/ray_webdataset.yaml
+#
+# The first run downloads + encodes the dataset once (images resized, prompts tokenised) into
+# tar shards; later runs and every Ray worker stream the shards.
+inherits: ../base.yaml
+device: cuda
+train:
+  parallel_strategy: ddp
+  ray:
+    enabled: true
+    num_workers: 8                  # one worker per GPU
+    use_gpu: true
+    resources_per_worker: {CPU: 8, GPU: 1}
+    storage_path: data/ray_results
+    max_failures: 2
+data:
+  loader:
+    num_workers: 4
+  webdataset:
+    enabled: true
+    root: data/webdataset
+    samples_per_shard: 512          # images are large: fewer samples per tar file
+    convert_workers: 8
+    shuffle_buffer: 2000

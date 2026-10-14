@@ -23,6 +23,10 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.8",
 ]
+# Ray Train launcher (train.ray.enabled: true) and WebDataset shards (data.webdataset.enabled: true).
+ray = ["hale-blocks[ray]"]
+webdataset = ["hale-blocks[webdataset]"]
+distributed = ["hale-blocks[ray,webdataset]"]
 
 [project.scripts]
 hale-vlm-train = "hale_vlm.cli.train:main"

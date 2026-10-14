@@ -6,11 +6,9 @@ import argparse
 from pathlib import Path
 
 from hale_core.config.experiment import apply_experiment_layout
-from hale_core.registry import get_trainer
 
 from hale_vlm.config import load_vlm_config
-from hale_vlm.data.multimodal import MultimodalDataModule
-from hale_vlm.training.evaluator import VLMEvaluator
+from hale_vlm.training.launch import train_vlm
 
 
 def main() -> None:
@@ -25,13 +23,10 @@ def main() -> None:
         cfg.train.resume = True
     apply_experiment_layout(cfg, create=not args.resume, name=args.run_name)
 
-    data_module = MultimodalDataModule(cfg, tokenizer=None)
-    trainer = get_trainer("vlm")(
-        cfg,
-        data_module=data_module,
-        evaluator=VLMEvaluator(),
-    )
-    trainer.fit()
+    # Local by default; on Ray Train when the config sets train.ray.enabled: true.
+    result = train_vlm(cfg)
+    if cfg.train.ray.enabled:
+        print(f"ray run finished: metrics={result.metrics} checkpoint={result.checkpoint_path}")
 
 
 if __name__ == "__main__":
