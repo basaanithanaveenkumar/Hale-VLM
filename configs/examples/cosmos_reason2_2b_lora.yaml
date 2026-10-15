@@ -1,0 +1,12 @@
+# Cosmos-Reason2-2B text tower (physical-AI reasoning; the GR00T N1.7 backbone), LoRA-tuned.
+# Gated: accept the NVIDIA Open Model License on the Hub and set HF_TOKEN.
+inherits: ../base.yaml
+variant: qwen3_8b_vlm
+model:
+  llm:
+    backbone: cosmos-reason2-2b
+    dtype: bfloat16
+    use_lora: true
+    lora_r: 16
+    lora_alpha: 32
+    lora_train_embeddings: true

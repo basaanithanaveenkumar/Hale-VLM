@@ -100,3 +100,26 @@ def test_hale_trainer_learns_with_connector(hf_mocks, tmp_path, config_name, con
     assert isinstance(model.projector, connector_cls)
     assert losses[-1] < losses[0]
     assert all(torch.isfinite(torch.tensor(losses)))
+
+
+@pytest.mark.integration
+def test_hale_vlm_passes_token_ids_aligned_with_spliced_images(hf_mocks):
+    """Backbones whose layers read token identity (Gemma 4) get ids matching the spliced sequence."""
+    cfg = load_vlm_config(CONFIGS / "qwen3_8b_qformer.yaml")
+    _shrink_hale(cfg)
+    model = HaleVLM(vocab_size=0, cfg=cfg)
+    seen = {}
+    forward = model.llm.core.forward
+
+    def spy(**kwargs):
+        seen.update(kwargs)
+        return forward(**kwargs)
+
+    model.llm.core.forward = spy
+    image_id, n = model.image_token_id, model.num_image_tokens
+    ids = torch.tensor([[5, *[image_id] * n, 6, 7], [5, 6, 7, 8, 9, 10, 11]])
+    model(input_ids=ids, attention_mask=torch.ones_like(ids), pixel_values=torch.randn(2, 3, 224, 224))
+    token_ids, embeds = seen["token_ids"], seen["inputs_embeds"]
+    assert token_ids.shape == embeds.shape[:2]
+    assert token_ids[0, 1 : 1 + n].eq(image_id).all() and token_ids[0, 0] == 5
+    assert torch.equal(token_ids[1], ids[1])

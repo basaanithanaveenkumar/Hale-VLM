@@ -1,0 +1,20 @@
+# Qwen3.5-4B-Base text tower as the VLM language model, LoRA-tuned.
+# Qwen3.5 is natively multimodal; HaleBlocks loads only its decoder + LM head (multimodal prior
+# included) and this VLM attaches its own SigLIP encoder + projector.
+# Hybrid decoder (Gated DeltaNet linear attention : full attention = 3 : 1); the default LoRA
+# targets cover both layer types. Install flash-linear-attention + causal-conv1d for speed.
+# Other 2026 small backbones: qwen3.5-{0.8b,2b,4b}[-base], gemma4-e{2,4}b[-it],
+# ministral3-{3b,8b}[-instruct], cosmos-reason2-2b, lfm2.5-vl-{450m,1.6b,3b},
+# smolvlm2-{256m,500m,2.2b}, smollm3-3b[-base], granite4.2-{3b,8b}, phi4-mini-reasoning.
+# Doc: HaleBlocks docs/llm_backbones.md
+inherits: ../base.yaml
+variant: qwen3_8b_vlm
+model:
+  llm:
+    backbone: qwen3.5-4b-base
+    dtype: bfloat16
+    use_lora: true
+    lora_r: 16
+    lora_alpha: 32
+    lora_train_embeddings: true     # learn the new <image> token
+    gradient_checkpointing: true

@@ -22,8 +22,11 @@ can `inherits:` a parent file and override fields.
 
 | Field | Default | Meaning |
 |---|---|---|
-| `backbone` | `qwen3-8b` | `qwen3-8b`, `deepseek-r1-qwen-7b` or `custom` |
-| `model_id` | `Qwen/Qwen3-8B` | HF id |
+| `backbone` | `qwen3-8b` | any name in HaleBlocks' registry (`hale_core.nn.llm.list_llm_backbones()`, 47 Hugging Face + 2 HaloDiffusionLLM), or `custom` |
+| `model_id` | `Qwen/Qwen3-8B` | HF id; left at the default, the backbone's registered repo is used |
+| `checkpoint` | null | HaloDiffusionLLM checkpoint for `hale-*` backbones |
+| `lora_train_embeddings` | false | also train embeddings / LM head (learn `<image>`) |
+| `gradient_checkpointing` | false | |
 | `dtype` | `bfloat16` | |
 | `freeze_llm` | true | freeze base weights |
 | `use_lora` | true | wrap with PEFT LoRA |
@@ -32,6 +35,17 @@ can `inherits:` a parent file and override fields.
 | `attn_implementation` | `sdpa` | |
 | `image_token` | `<image>` | added to the tokenizer if missing |
 | `reasoning_mode` | false | |
+
+Registered backbones include text LLMs (SmolLM2/3, Qwen2.5/3, Llama 3.x, Gemma 2/3, Phi-3.5/4-mini(-reasoning),
+Mistral 7B, Granite 4.2, DeepSeek-R1-Distill). They also include the **text towers of natively multimodal 2026
+models**: Qwen3.5 0.8B/2B/4B (base + instruct), Gemma 4 E2B/E4B, Ministral 3 3B/8B, Cosmos-Reason2-2B,
+LFM2.5-VL 450M/1.6B/3B and SmolVLM2. For those, only the decoder and LM head are loaded, and the VLM attaches its own
+vision encoder and projector. Hybrid decoders (Qwen3.5 linear attention, LFM2.5 convolutions, Gemma 4 sliding
+window) are supported. Gemma 4 receives the token ids alongside the spliced image embeddings automatically.
+Examples: `configs/examples/qwen3_5_4b_base_lora.yaml`, `gemma4_e4b_lora.yaml`, `cosmos_reason2_2b_lora.yaml`.
+Full table, selection rule and picks: HaleBlocks `docs/llm_backbones.md`. Known limitation: `chat` generation
+starting from spliced image embeddings does not work with `gemma4-*` (Gemma 4 cannot recover its per-layer token
+ids from them). Training, evaluation and text-only chat work.
 
 ## `data` (`VLMDataConfig`)
 

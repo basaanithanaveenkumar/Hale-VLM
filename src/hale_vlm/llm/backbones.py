@@ -60,9 +60,13 @@ class LLMBackbone(nn.Module):
         input_ids: torch.Tensor | None = None,
         attention_mask: torch.Tensor | None = None,
         labels: torch.Tensor | None = None,
+        token_ids: torch.Tensor | None = None,
     ) -> LanguageBackboneOutput:
+        """Run the LM; ``token_ids`` are the ids aligned with ``inputs_embeds`` (needed by
+        Gemma 4's per-layer embeddings once image embeddings are spliced in, ignored otherwise)."""
         return self.core(
-            input_ids=input_ids, inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels
+            input_ids=input_ids, inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels,
+            token_ids=token_ids,
         )
 
     def generate(self, **kwargs: Any) -> torch.Tensor:

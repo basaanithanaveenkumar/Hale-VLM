@@ -40,3 +40,16 @@ def test_unknown_backbone_and_reasoning_alias() -> None:
     with pytest.raises(ValidationError, match="unknown LLM backbone"):
         LLMConfig(backbone="gpt-5")
     assert resolve_llm_config(LLMConfig(backbone="deepseek-r1-qwen-7b")).reasoning_mode is True
+
+
+@pytest.mark.parametrize("config", ["qwen3_5_4b_base_lora", "gemma4_e4b_lora", "cosmos_reason2_2b_lora"])
+def test_2026_backbone_example_configs_load(config: str) -> None:
+    from pathlib import Path
+
+    from hale_vlm.config import load_vlm_config
+
+    path = Path(__file__).resolve().parents[2] / "configs" / "examples" / f"{config}.yaml"
+    llm = resolve_llm_config(load_vlm_config(str(path)).model.llm)
+    spec = get_llm_backbone_spec(llm.backbone)
+    assert spec.is_multimodal_checkpoint and llm.model_id == spec.model_id
+    assert llm.to_backbone_config().lora.train_embeddings

@@ -1,0 +1,15 @@
+# Gemma 4 E4B text tower (Apache 2.0) as the VLM language model, LoRA-tuned.
+# The "E" models add per-layer token embeddings; the VLM passes the token ids alongside the
+# spliced image embeddings, so training works with images (see HaleBlocks docs/llm_backbones.md).
+inherits: ../base.yaml
+variant: qwen3_8b_vlm
+model:
+  llm:
+    backbone: gemma4-e4b
+    dtype: bfloat16
+    attn_implementation: eager      # Gemma: logit soft-capping
+    use_lora: true
+    lora_r: 16
+    lora_alpha: 32
+    lora_train_embeddings: true
+    gradient_checkpointing: true

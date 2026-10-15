@@ -132,6 +132,25 @@ class HaleVLM(nn.Module):
 
         return torch.stack(padded_embeds), torch.stack(padded_masks)
 
+    def merge_image_token_ids(self, input_ids: torch.Tensor, num_image_tokens: int) -> torch.Tensor:
+        """Token ids aligned with :meth:`merge_image_embeddings`' output.
+
+        Image slots carry the image token id, padding the tokenizer's pad id. Backbones whose
+        layers read token identity (Gemma 4 per-layer embeddings) need them; others ignore them.
+        """
+        pad_id = self.llm.tokenizer.pad_token_id or 0
+        merged = []
+        for ids in input_ids:
+            image_positions = (ids == self.image_token_id).nonzero(as_tuple=True)[0]
+            if image_positions.numel() == 0:
+                merged.append(ids)
+                continue
+            start = int(image_positions[0].item())
+            image = ids.new_full((num_image_tokens,), self.image_token_id)
+            merged.append(torch.cat([ids[:start], image, ids[start + num_image_tokens :]]))
+        width = max(t.shape[0] for t in merged)
+        return torch.stack([torch.cat([t, t.new_full((width - t.shape[0],), pad_id)]) for t in merged])
+
     def forward(
         self,
         *,
@@ -141,6 +160,7 @@ class HaleVLM(nn.Module):
         labels: torch.Tensor | None = None,
     ):
         text_embeds = self.llm.embed_tokens(input_ids)
+        token_ids = input_ids
         if pixel_values is not None:
             image_embeds = self.encode_images(pixel_values)
             inputs_embeds, attention_mask = self.merge_image_embeddings(
@@ -148,6 +168,7 @@ class HaleVLM(nn.Module):
                 text_embeds,
                 image_embeds,
             )
+            token_ids = self.merge_image_token_ids(input_ids, image_embeds.shape[1])
             input_ids = None
         else:
             inputs_embeds = text_embeds
@@ -157,6 +178,7 @@ class HaleVLM(nn.Module):
             inputs_embeds=inputs_embeds,
             attention_mask=attention_mask,
             labels=labels,
+            token_ids=token_ids,
         )
 
     @classmethod
