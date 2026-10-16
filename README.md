@@ -66,6 +66,7 @@ data:
 | Project page | [basaanithanaveenkumar.github.io/Hale-VLM](https://basaanithanaveenkumar.github.io/Hale-VLM/) ([source](project-page/index.html)) |
 | Documentation | [`docs/`](docs/README.md) — getting started, configuration, data, [known issues](docs/known-issues.md) |
 | Architecture diagrams | [`docs/architecture.md`](docs/architecture.md) (Mermaid) |
+| VLM backbone notebooks | [Qwen3-VL](notebooks/backbones/vlm/qwen3_vl_backbone_step_by_step.ipynb) and [SmolVLM](notebooks/backbones/vlm/smolvlm_backbone_step_by_step.ipynb) step by step, with animations and checks against `transformers` ([overview](docs/vlm_backbone_notebooks.md)) |
 | Blog | [Giving an 8B reasoning model eyes for about 1% of its parameters](docs/blog/2026-09-28-eyes-for-a-reasoning-llm.md) |
 | Claude Code skills | [`.claude/skills/`](.claude/skills) — `hale-vlm-dev`, `hale-vlm-train`, `hale-vlm-datasets`, `hale-publish` |
 

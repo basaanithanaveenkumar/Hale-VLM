@@ -23,6 +23,8 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.8",
 ]
+# Step-by-step notebooks (notebooks/backbones/vlm/) and their animations (backbone_films).
+notebooks = ["matplotlib>=3.9", "ipykernel>=6.29", "ipython>=8.30", "nbclient>=0.10", "nbformat>=5.10"]
 # Ray Train launcher (train.ray.enabled: true) and WebDataset shards (data.webdataset.enabled: true).
 ray = ["hale-blocks[ray]"]
 webdataset = ["hale-blocks[webdataset]"]
@@ -49,6 +51,7 @@ deploy-qualcomm = ["hale-vlm[deploy]", "qai-hub>=0.30"]
 hale-vlm-train = "hale_vlm.cli.train:main"
 hale-vlm-chat = "hale_vlm.cli.chat:main"
 hale-vlm-deploy = "hale_vlm.cli.deploy:main"
+hale-vlm-films = "hale_vlm.visualization.backbone_films.__main__:main"
 
 [build-system]
 requires = ["uv_build>=0.11.29,<0.12.0"]

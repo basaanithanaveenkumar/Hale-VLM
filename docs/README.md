@@ -10,6 +10,7 @@ with a frozen SigLIP encoder, a trainable MLP projector and LoRA adapters. It pl
 | [Architecture](architecture.md) | Mermaid diagrams: model, trainability, plugin wiring, data flow |
 | [Configuration](configuration.md) | `VLMRunConfig` fields |
 | [Data](data.md) | SmolVLM and SmolVLA registries, streaming mixer, robotics-to-VLM modes |
+| [VLM backbone notebooks](vlm_backbone_notebooks.md) | Qwen3-VL and SmolVLM backbones rebuilt step by step, with animations |
 | [Known issues](known-issues.md) | input-pipeline issues to fix before trusting results |
 | [Blog](blog/README.md) | long-form posts |
 
