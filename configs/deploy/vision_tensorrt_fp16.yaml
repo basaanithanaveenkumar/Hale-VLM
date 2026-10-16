@@ -1,0 +1,4 @@
+# Vision engine on data-center / workstation GPUs: SigLIP + projector, FP16 TensorRT.
+_base_:
+  - pkg://hale_core.deploy/configs/nvidia/tensorrt_fp16.yaml
+  - ./_shared/qwen3_8b_vision.yaml

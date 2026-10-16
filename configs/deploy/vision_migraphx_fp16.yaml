@@ -1,0 +1,4 @@
+# Vision engine on AMD Instinct / Radeon (ROCm 7.x): MIGraphX FP16 program.
+_base_:
+  - pkg://hale_core.deploy/configs/amd/migraphx_fp16.yaml
+  - ./_shared/qwen3_8b_vision.yaml

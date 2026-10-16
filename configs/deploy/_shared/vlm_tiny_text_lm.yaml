@@ -1,0 +1,3 @@
+_base_: ./vlm_tiny_common.yaml
+name: vlm_tiny_text_lm
+adapter: {type: hale_vlm.LanguageModelAdapter, mode: ids}

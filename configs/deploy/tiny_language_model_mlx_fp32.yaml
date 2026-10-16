@@ -1,0 +1,4 @@
+# CI (Apple Silicon): tiny language-model prefill -> MLX, exact precision.
+_base_:
+  - pkg://hale_core.deploy/configs/apple/mlx_fp32.yaml
+  - ./_shared/vlm_tiny_language_model.yaml

@@ -1,0 +1,4 @@
+# Vision engine, INT8 with ModelOpt Q/DQ (set adapter.calibration_images to real images).
+_base_:
+  - pkg://hale_core.deploy/configs/nvidia/tensorrt_int8_modelopt.yaml
+  - ./_shared/qwen3_8b_vision.yaml

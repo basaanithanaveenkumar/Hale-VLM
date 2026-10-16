@@ -1,0 +1,4 @@
+# Language model on edge GPUs (Jetson Orin / consumer RTX): INT4-AWQ TensorRT-LLM bundle.
+_base_:
+  - pkg://hale_core.deploy/configs/nvidia/tensorrt_llm_int4_edge.yaml
+  - ./_shared/qwen3_8b_language_model.yaml

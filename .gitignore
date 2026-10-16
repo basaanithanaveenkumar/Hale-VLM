@@ -23,3 +23,6 @@ checkpoints/
 
 # HuggingFace cache (optional local override)
 .cache/
+
+# deployment outputs and offline tiny assets (hale-vlm-deploy)
+work_dirs/

@@ -1,0 +1,4 @@
+# Vision engine on Apple Silicon through the ATen -> MLX bridge, FP16.
+_base_:
+  - pkg://hale_core.deploy/configs/apple/mlx_fp16.yaml
+  - ./_shared/qwen3_8b_vision.yaml

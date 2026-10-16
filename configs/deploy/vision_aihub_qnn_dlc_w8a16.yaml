@@ -1,0 +1,5 @@
+# Vision engine on Snapdragon 8 Elite Hexagon NPU via AI Hub (QNN DLC, W8A16, profiled on device).
+_base_:
+  - pkg://hale_core.deploy/configs/qualcomm/aihub_qnn_dlc_w8a16.yaml
+  - ./_shared/qwen3_8b_vision.yaml
+adapter: {max_batch: 1}

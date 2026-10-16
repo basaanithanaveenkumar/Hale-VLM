@@ -27,10 +27,28 @@ dev = [
 ray = ["hale-blocks[ray]"]
 webdataset = ["hale-blocks[webdataset]"]
 distributed = ["hale-blocks[ray,webdataset]"]
+# Deployment (hale-vlm-deploy): ONNX + ONNX Runtime everywhere; vendor SDKs per platform.
+deploy = ["onnx>=1.17", "onnxruntime>=1.20", "onnxscript>=0.2", "safetensors>=0.4"]
+deploy-nvidia = [
+    "hale-vlm[deploy]",
+    "tensorrt>=10.0; sys_platform == 'linux'",
+    "nvidia-modelopt[onnx,torch]>=0.40; sys_platform == 'linux'",
+    "torch-tensorrt>=2.8; sys_platform == 'linux'",
+]
+deploy-apple = [
+    "hale-vlm[deploy]",
+    "mlx>=0.25; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "mlx-lm>=0.25; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "mlx-vlm>=0.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+# MIGraphX ships with ROCm (python3-migraphx), not PyPI; Quark targets the Ryzen AI NPU.
+deploy-amd = ["hale-vlm[deploy]", "amd-quark>=0.9"]
+deploy-qualcomm = ["hale-vlm[deploy]", "qai-hub>=0.30"]
 
 [project.scripts]
 hale-vlm-train = "hale_vlm.cli.train:main"
 hale-vlm-chat = "hale_vlm.cli.chat:main"
+hale-vlm-deploy = "hale_vlm.cli.deploy:main"
 
 [build-system]
 requires = ["uv_build>=0.11.29,<0.12.0"]

@@ -1,0 +1,10 @@
+# Offline CI-sized VLM: tiny SigLIP + tiny Llama written to work_dirs/tiny_vlm_assets on first use
+# (hale_vlm.deploy.testing.TinyVLMAssets). Paths are relative to the repo root (the CLI's cwd).
+custom_imports: [hale_vlm.deploy]
+calibration: {type: AdapterCalibrationSource, num_batches: 2}
+adapter:
+  run_config: configs/base.yaml
+  tiny_assets: work_dirs/tiny_vlm_assets
+  run_overrides: {model: {max_length: 128}}
+  max_batch: 2
+  opt_text_len: 16

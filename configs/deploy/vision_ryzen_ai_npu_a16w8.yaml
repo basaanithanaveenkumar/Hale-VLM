@@ -1,0 +1,5 @@
+# Vision engine on the Ryzen AI NPU: Quark A16W8 + VitisAI execution provider package.
+_base_:
+  - pkg://hale_core.deploy/configs/amd/ryzen_ai_npu_a16w8.yaml
+  - ./_shared/qwen3_8b_vision.yaml
+adapter: {max_batch: 1}

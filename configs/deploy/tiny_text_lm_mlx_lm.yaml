@@ -1,0 +1,7 @@
+# CI: tiny text LM -> HF checkpoint (offline) -> mlx-lm when installed.
+_base_:
+  - pkg://hale_core.deploy/configs/apple/mlx_lm_q4.yaml
+  - ./_shared/vlm_tiny_text_lm.yaml
+pipeline:
+  - {type: HuggingFaceCheckpointStage, dtype: float32}
+  - {type: MLXHuggingFaceConvertStage, package: mlx_lm, q_bits: 4, q_group_size: 32, skip_if_unavailable: true}

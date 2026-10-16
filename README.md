@@ -73,3 +73,16 @@ data:
 
 `model.vision.projector_type` selects how vision features reach the LLM: `mlp`, `linear`, `qformer` (BLIP-2 style learned queries) or
 `gated_cross_attention` (Flamingo style). See [docs/vision_connectors.md](docs/vision_connectors.md).
+
+## Deployment
+
+`hale-vlm-deploy` exports the VLM - split into a vision engine, a language model (graph or HF
+checkpoint) and a single-graph prefill - to TensorRT / TensorRT-LLM / Jetson, MLX / mlx-lm,
+AMD MIGraphX / Ryzen AI NPU and Qualcomm AI Hub / ExecuTorch QNN, with numerical parity checks.
+See [docs/deploy.md](docs/deploy.md); configs live in `configs/deploy/`, vendor SDK sources in
+`ext_pkgs/` (git submodules).
+
+```bash
+hale-vlm-deploy run configs/deploy/tiny_vision_onnx_ort.yaml        # offline smoke test
+hale-vlm-deploy run configs/deploy/vision_tensorrt_fp16.yaml --cfg-options adapter.checkpoint=last.pt
+```

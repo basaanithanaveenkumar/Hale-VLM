@@ -1,0 +1,5 @@
+# Language model on TensorRT-LLM (PyTorch backend): merged HF text tower -> ModelOpt FP8 bundle.
+# Serve visual tokens from the vision engine as prompt embeddings (TensorRT-LLM multimodal input).
+_base_:
+  - pkg://hale_core.deploy/configs/nvidia/tensorrt_llm_fp8.yaml
+  - ./_shared/qwen3_8b_language_model.yaml

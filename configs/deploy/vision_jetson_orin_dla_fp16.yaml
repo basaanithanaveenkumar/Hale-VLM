@@ -1,0 +1,5 @@
+# Vision engine on Jetson Orin (build on the device): DLA core 0 + GPU fallback, FP16.
+_base_:
+  - pkg://hale_core.deploy/configs/nvidia/jetson_orin_dla_fp16.yaml
+  - ./_shared/qwen3_8b_vision.yaml
+adapter: {max_batch: 2}

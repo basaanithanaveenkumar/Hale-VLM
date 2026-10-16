@@ -1,0 +1,5 @@
+# Vision engine as an ExecuTorch .pte with the QNN HTP delegate (local, no cloud), 16a8w.
+_base_:
+  - pkg://hale_core.deploy/configs/qualcomm/executorch_qnn_16a8w.yaml
+  - ./_shared/qwen3_8b_vision.yaml
+adapter: {max_batch: 1}

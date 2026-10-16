@@ -1,0 +1,4 @@
+# Language model on Apple Silicon with mlx-lm (4-bit, group 64): merged HF text tower -> mlx_lm.convert.
+_base_:
+  - pkg://hale_core.deploy/configs/apple/mlx_lm_q4.yaml
+  - ./_shared/qwen3_8b_language_model.yaml

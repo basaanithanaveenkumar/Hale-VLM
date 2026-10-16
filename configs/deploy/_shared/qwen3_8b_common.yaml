@@ -1,0 +1,10 @@
+# Production VLM: configs/base.yaml (SigLIP-base + Qwen3-8B). Set adapter.checkpoint to the
+# trained VLM checkpoint and adapter.calibration_images to a folder of representative images.
+custom_imports: [hale_vlm.deploy]
+calibration: {type: AdapterCalibrationSource, num_batches: 64}
+adapter:
+  run_config: configs/base.yaml
+  checkpoint: null
+  calibration_images: null
+  max_batch: 8
+  opt_text_len: 128

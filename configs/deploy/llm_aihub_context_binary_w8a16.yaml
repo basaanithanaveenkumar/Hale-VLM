@@ -1,0 +1,6 @@
+# Language-model prefill as a weight-shared QNN context binary (AI Hub compile + link).
+# Practical for <= 3B-class LLMs on phones; swap configs/base.yaml for a smaller backbone run config.
+_base_:
+  - pkg://hale_core.deploy/configs/qualcomm/aihub_context_binary.yaml
+  - ./_shared/qwen3_8b_language_model.yaml
+adapter: {max_batch: 1, opt_text_len: 64}
