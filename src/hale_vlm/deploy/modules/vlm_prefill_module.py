@@ -30,11 +30,14 @@ class VLMPrefillModule(nn.Module):
         self.llm = llm
         self.image_token_id = image_token_id
 
-    def forward(self, pixel_values: torch.Tensor, input_ids: torch.Tensor,
-                attention_mask: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, pixel_values: torch.Tensor, input_ids: torch.Tensor, attention_mask: torch.Tensor
+    ) -> torch.Tensor:
         image = self.vision(pixel_values)
         batch, n = image.shape[0], image.shape[1]
         embeds = torch.cat([image, self.llm.embed_tokens(input_ids)], dim=1)
         mask = torch.cat([attention_mask.new_ones(batch, n), attention_mask], dim=1)
-        token_ids = torch.cat([input_ids.new_full((batch, n), self.image_token_id), input_ids], dim=1)
+        token_ids = torch.cat(
+            [input_ids.new_full((batch, n), self.image_token_id), input_ids], dim=1
+        )
         return self.llm(inputs_embeds=embeds, attention_mask=mask, token_ids=token_ids).logits

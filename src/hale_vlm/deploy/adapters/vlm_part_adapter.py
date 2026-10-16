@@ -9,16 +9,20 @@ from pathlib import Path
 from typing import Any
 
 import torch
+from hale_core.deploy.adapters.model_adapter import ModelAdapter
+from hale_core.deploy.exceptions import ConfigError
 from loguru import logger
 from torch import nn
 
-from hale_core.deploy.adapters.model_adapter import ModelAdapter
-from hale_core.deploy.exceptions import ConfigError
 from hale_vlm.deploy.calibration.calibration_image_loader import CalibrationImageLoader
 
 #: Prompts used to build realistic text-side calibration inputs.
-CALIBRATION_PROMPTS = ("describe this image .", "what color is the shape ?", "what is on the background ?",
-                       "is it a square or a circle ?")
+CALIBRATION_PROMPTS = (
+    "describe this image .",
+    "what color is the shape ?",
+    "what is on the background ?",
+    "is it a square or a circle ?",
+)
 
 
 class VLMPartAdapter(ModelAdapter):
@@ -40,9 +44,16 @@ class VLMPartAdapter(ModelAdapter):
         checkpoint: trainer checkpoint of the full VLM (``model_state_dict`` or plain state dict).
     """
 
-    def __init__(self, run_config: str, run_overrides: Mapping[str, Any] | None = None, tiny_assets: str | None = None,
-                 max_batch: int = 4, opt_text_len: int = 32, calibration_images: str | None = None,
-                 **base: Any) -> None:
+    def __init__(
+        self,
+        run_config: str,
+        run_overrides: Mapping[str, Any] | None = None,
+        tiny_assets: str | None = None,
+        max_batch: int = 4,
+        opt_text_len: int = 32,
+        calibration_images: str | None = None,
+        **base: Any,
+    ) -> None:
         base.setdefault("strict", False)  # LoRA/PEFT naming differs between train and export builds
         super().__init__(**base)
         self.run_config = run_config
@@ -79,8 +90,11 @@ class VLMPartAdapter(ModelAdapter):
         from hale_vlm.models.vlm import HaleVLM
 
         model = HaleVLM.from_config(self.run_cfg).float().eval()
-        logger.info("built HaleVLM for deployment (llm={}, vision={})", self.run_cfg.model.llm.backbone,
-                    self.run_cfg.model.vision.encoder)
+        logger.info(
+            "built HaleVLM for deployment (llm={}, vision={})",
+            self.run_cfg.model.llm.backbone,
+            self.run_cfg.model.vision.encoder,
+        )
         return model
 
     @cached_property
@@ -128,6 +142,12 @@ class VLMPartAdapter(ModelAdapter):
         return CalibrationImageLoader(self.calibration_images, self.image_size).batches(num_batches)
 
     def tokenize(self, prompts: Sequence[str], length: int) -> tuple[torch.Tensor, torch.Tensor]:
-        tokens = self.vlm.tokenizer(list(prompts), padding="max_length", truncation=True, max_length=length,
-                                    return_tensors="pt", add_special_tokens=False)
+        tokens = self.vlm.tokenizer(
+            list(prompts),
+            padding="max_length",
+            truncation=True,
+            max_length=length,
+            return_tensors="pt",
+            add_special_tokens=False,
+        )
         return tokens["input_ids"].long(), tokens["attention_mask"].long()

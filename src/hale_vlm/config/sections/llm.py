@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from pydantic import field_validator
-
 from hale_core.config.sections.common import StrictModel
 from hale_core.config.sections.llm_backbone import LLMBackboneConfig, LoRASettings
 from hale_core.nn.llm import is_registered, list_llm_backbones
+from pydantic import field_validator
 
 
 class LLMConfig(StrictModel):
@@ -43,7 +42,9 @@ class LLMConfig(StrictModel):
     @classmethod
     def _known_backbone(cls, name: str) -> str:
         if name != "custom" and not is_registered(name):
-            raise ValueError(f"unknown LLM backbone {name!r}; choose one of {list_llm_backbones()} or 'custom'")
+            raise ValueError(
+                f"unknown LLM backbone {name!r}; choose one of {list_llm_backbones()} or 'custom'"
+            )
         return name
 
     @field_validator("dtype")
@@ -74,9 +75,13 @@ class LLMConfig(StrictModel):
             model_id=model_id,
             checkpoint=self.checkpoint,
             finetune=self.finetune,
-            lora=LoRASettings(r=self.lora_r, alpha=self.lora_alpha, dropout=self.lora_dropout,
-                              target_modules=self.lora_target_modules,
-                              train_embeddings=self.lora_train_embeddings),
+            lora=LoRASettings(
+                r=self.lora_r,
+                alpha=self.lora_alpha,
+                dropout=self.lora_dropout,
+                target_modules=self.lora_target_modules,
+                train_embeddings=self.lora_train_embeddings,
+            ),
             dtype=self.dtype,
             attn_implementation=self.attn_implementation,
             trust_remote_code=self.trust_remote_code,

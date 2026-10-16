@@ -7,11 +7,11 @@ from collections.abc import Iterator
 from typing import Any, Literal
 
 import torch
+from hale_core.deploy.core.io_signature import IOSignature
+from hale_core.deploy.exceptions import DeployError
 from loguru import logger
 from torch import nn
 
-from hale_core.deploy.core.io_signature import IOSignature
-from hale_core.deploy.exceptions import DeployError
 from hale_vlm.deploy.adapters.vlm_part_adapter import CALIBRATION_PROMPTS, VLMPartAdapter
 from hale_vlm.deploy.modules.language_model_module import LanguageModelModule
 from hale_vlm.deploy.registry import ADAPTERS
@@ -41,22 +41,52 @@ class LanguageModelAdapter(VLMPartAdapter):
         return LanguageModelModule(vlm.llm, self.mode)
 
     def default_signature(self) -> IOSignature:
-        first = ({"name": "inputs_embeds", "shape": ["batch", "seq", self.hidden_size], "dtype": "float32",
-                  "value_range": [-0.05, 0.05]} if self.mode == "embeds" else
-                 {"name": "input_ids", "shape": ["batch", "seq"], "dtype": "int64", "value_range": [0, self.vocab_size]})
-        return IOSignature.from_config({
-            "inputs": [first, {"name": "attention_mask", "shape": ["batch", "seq"], "dtype": "int64",
-                               "value_range": [1, 2]}],
-            "outputs": ["logits"],
-            "dims": {"batch": [1, 1, self.max_batch],
-                     "seq": [1, min(self.num_image_tokens + self.opt_text_len, self.max_length), self.max_length]}})
+        first = (
+            {
+                "name": "inputs_embeds",
+                "shape": ["batch", "seq", self.hidden_size],
+                "dtype": "float32",
+                "value_range": [-0.05, 0.05],
+            }
+            if self.mode == "embeds"
+            else {
+                "name": "input_ids",
+                "shape": ["batch", "seq"],
+                "dtype": "int64",
+                "value_range": [0, self.vocab_size],
+            }
+        )
+        return IOSignature.from_config(
+            {
+                "inputs": [
+                    first,
+                    {
+                        "name": "attention_mask",
+                        "shape": ["batch", "seq"],
+                        "dtype": "int64",
+                        "value_range": [1, 2],
+                    },
+                ],
+                "outputs": ["logits"],
+                "dims": {
+                    "batch": [1, 1, self.max_batch],
+                    "seq": [
+                        1,
+                        min(self.num_image_tokens + self.opt_text_len, self.max_length),
+                        self.max_length,
+                    ],
+                },
+            }
+        )
 
     def hf_checkpoint(self, model: nn.Module) -> tuple[Any, Any]:
         """The HF causal LM (LoRA merged on a copy) and its tokenizer, ``<image>`` included."""
         hf_model = self.vlm.llm.model
         if not hasattr(hf_model, "save_pretrained"):
-            raise DeployError(f"LLM backbone {self.run_cfg.model.llm.backbone!r} is not a Hugging Face model; "
-                              "use the graph route (ONNX / MLX bridge) instead")
+            raise DeployError(
+                f"LLM backbone {self.run_cfg.model.llm.backbone!r} is not a Hugging Face model; "
+                "use the graph route (ONNX / MLX bridge) instead"
+            )
         if hasattr(hf_model, "merge_and_unload"):
             logger.info("merging LoRA adapters into a copy of the LLM for export")
             hf_model = copy.deepcopy(hf_model).merge_and_unload()
@@ -71,8 +101,9 @@ class LanguageModelAdapter(VLMPartAdapter):
     def _batches(self, images) -> Iterator[dict[str, torch.Tensor]]:
         vlm = self.vlm
         for i, px in enumerate(images):
-            ids, mask = self.tokenize([CALIBRATION_PROMPTS[i % len(CALIBRATION_PROMPTS)]] * px.shape[0],
-                                      self.opt_text_len)
+            ids, mask = self.tokenize(
+                [CALIBRATION_PROMPTS[i % len(CALIBRATION_PROMPTS)]] * px.shape[0], self.opt_text_len
+            )
             with torch.no_grad():
                 image = vlm.encode_images(px)
                 if self.mode == "ids":

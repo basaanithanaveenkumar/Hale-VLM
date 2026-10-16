@@ -149,7 +149,9 @@ class HaleVLM(nn.Module):
             image = ids.new_full((num_image_tokens,), self.image_token_id)
             merged.append(torch.cat([ids[:start], image, ids[start + num_image_tokens :]]))
         width = max(t.shape[0] for t in merged)
-        return torch.stack([torch.cat([t, t.new_full((width - t.shape[0],), pad_id)]) for t in merged])
+        return torch.stack(
+            [torch.cat([t, t.new_full((width - t.shape[0],), pad_id)]) for t in merged]
+        )
 
     def forward(
         self,

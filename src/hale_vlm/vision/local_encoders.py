@@ -40,13 +40,9 @@ Architecture:
 
 from __future__ import annotations
 
-from typing import Optional
-
 import torch
 import torch.nn as nn
 from torch import Tensor
-
-from hale_vlm.config.sections.vision import VisionConfig
 
 
 class LocalVisionTower(nn.Module):
@@ -82,13 +78,13 @@ class LocalVisionTower(nn.Module):
 
     def __init__(
         self,
-        backbone_name:       str   = "convnext_base",
-        img_size:            int   = 224,
-        drop_rate:           float = 0.0,
-        freeze_encoder:      bool  = True,
-        freeze_up_to_stage:  int   = -1,
-        pretrained_path:     Optional[str] = None,
-        return_patch_tokens: bool  = True,
+        backbone_name: str = "convnext_base",
+        img_size: int = 224,
+        drop_rate: float = 0.0,
+        freeze_encoder: bool = True,
+        freeze_up_to_stage: int = -1,
+        pretrained_path: str | None = None,
+        return_patch_tokens: bool = True,
     ) -> None:
         super().__init__()
 
@@ -100,12 +96,13 @@ class LocalVisionTower(nn.Module):
             in_chans=3,
             drop_rate=drop_rate,
         )
-        self.backbone_name       = backbone_name
+        self.backbone_name = backbone_name
         self.return_patch_tokens = return_patch_tokens
 
         # Load pretrained weights
         if pretrained_path:
             from hale_core.config.sections.backbone import _load_pretrained
+
             _load_pretrained(self.backbone, pretrained_path)
 
         # Apply freezing strategy
@@ -184,13 +181,13 @@ class LocalVisionTower(nn.Module):
 
 
 def build_local_vision_tower(
-    backbone_name:       str   = "convnext_base",
-    img_size:            int   = 224,
-    drop_rate:           float = 0.0,
-    freeze_encoder:      bool  = True,
-    freeze_up_to_stage:  int   = -1,
-    pretrained_path:     Optional[str] = None,
-    return_patch_tokens: bool  = True,
+    backbone_name: str = "convnext_base",
+    img_size: int = 224,
+    drop_rate: float = 0.0,
+    freeze_encoder: bool = True,
+    freeze_up_to_stage: int = -1,
+    pretrained_path: str | None = None,
+    return_patch_tokens: bool = True,
 ) -> LocalVisionTower:
     """Factory function for building LocalVisionTower from keyword args.
 

@@ -7,8 +7,9 @@ from collections.abc import Sequence
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Register the VLM adapters, then delegate to :class:`hale_core.deploy.cli.DeployCLI`."""
-    import hale_vlm.deploy  # noqa: F401 - registers hale_vlm.* adapters
     from hale_core.deploy.cli import DeployCLI
+
+    import hale_vlm.deploy  # noqa: F401 - registers hale_vlm.* adapters
 
     return DeployCLI(prog="hale-vlm-deploy").main(argv)
 

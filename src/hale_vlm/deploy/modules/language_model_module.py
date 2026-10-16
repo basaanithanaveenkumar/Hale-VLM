@@ -27,5 +27,7 @@ class LanguageModelModule(nn.Module):
 
     def forward(self, inputs: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
         if self.mode == "ids":
-            return self.llm(input_ids=inputs, attention_mask=attention_mask, token_ids=inputs).logits
+            return self.llm(
+                input_ids=inputs, attention_mask=attention_mask, token_ids=inputs
+            ).logits
         return self.llm(inputs_embeds=inputs, attention_mask=attention_mask).logits

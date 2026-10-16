@@ -9,10 +9,9 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 import torch.nn as nn
+from hale_core.nn.llm import get_llm_backbone_spec
 from loguru import logger
 from peft import LoraConfig, get_peft_model
-
-from hale_core.nn.llm import get_llm_backbone_spec
 
 from hale_vlm.config.sections.llm import LLMConfig
 

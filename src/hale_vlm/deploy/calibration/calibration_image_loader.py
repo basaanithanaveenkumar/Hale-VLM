@@ -6,9 +6,8 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import torch
-from loguru import logger
-
 from hale_core.deploy.exceptions import ConfigError
+from loguru import logger
 
 IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png", ".webp", ".bmp")
 
@@ -39,12 +38,21 @@ class CalibrationImageLoader:
         from PIL import Image
         from torchvision import transforms
 
-        transform = transforms.Compose([transforms.Resize((self.image_size, self.image_size)), transforms.ToTensor(),
-                                        transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3)])
+        transform = transforms.Compose(
+            [
+                transforms.Resize((self.image_size, self.image_size)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3),
+            ]
+        )
         files = self.files()
         if not files:
             raise ConfigError(f"no images in {self.directory}")
-        logger.info("calibrating on {} images from {}", min(len(files), num_batches * self.batch_size), self.directory)
+        logger.info(
+            "calibrating on {} images from {}",
+            min(len(files), num_batches * self.batch_size),
+            self.directory,
+        )
         for start in range(0, min(len(files), num_batches * self.batch_size), self.batch_size):
-            chunk = files[start:start + self.batch_size]
+            chunk = files[start : start + self.batch_size]
             yield torch.stack([transform(Image.open(f).convert("RGB")) for f in chunk])

@@ -23,36 +23,31 @@ VLA (vision-language-action, robot policy evaluation)
 """
 
 from hale_vlm.metrics.base import VLMMetricBase
-
-from hale_vlm.metrics.language import (
-    LossMetric,
-    BLEUMetric,
-    ROUGEMetric,
-    METEORMetric,
-    CIDErMetric,
-)
-
-from hale_vlm.metrics.vqa import (
-    ExactMatchMetric,
-    SoftMatchMetric,
-    YesNoAccuracyMetric,
-    NumericalAccuracyMetric,
-    OpenEndedF1Metric,
-)
-
 from hale_vlm.metrics.grounding import (
     BoxIoUMetric,
     PointingAccuracyMetric,
 )
-
+from hale_vlm.metrics.language import (
+    BLEUMetric,
+    CIDErMetric,
+    LossMetric,
+    METEORMetric,
+    ROUGEMetric,
+)
 from hale_vlm.metrics.multimodal import (
     EmbeddingAlignmentMetric,
     RetrievalRecallMetric,
 )
-
 from hale_vlm.metrics.vla import (
-    InstructionFollowingMetric,
     ActionTokenAccuracyMetric,
+    InstructionFollowingMetric,
+)
+from hale_vlm.metrics.vqa import (
+    ExactMatchMetric,
+    NumericalAccuracyMetric,
+    OpenEndedF1Metric,
+    SoftMatchMetric,
+    YesNoAccuracyMetric,
 )
 
 __all__ = [

@@ -7,11 +7,10 @@ from typing import Any
 
 import torch
 import torch.nn as nn
+from hale_core.nn.llm import LanguageBackboneOutput, build_language_backbone, get_llm_backbone_spec
 
 # Re-exported: the same classes HaleBlocks loads with; tests patch their ``from_pretrained``.
 from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: F401
-
-from hale_core.nn.llm import LanguageBackboneOutput, build_language_backbone, get_llm_backbone_spec
 
 from hale_vlm.config.sections.llm import LLMConfig
 
@@ -31,7 +30,9 @@ class LLMBackbone(nn.Module):
     def __init__(self, cfg: LLMConfig, special_tokens: Sequence[str] = ()) -> None:
         super().__init__()
         self.cfg = cfg
-        self.core, self.special_token_ids = build_language_backbone(cfg.to_backbone_config(), special_tokens)
+        self.core, self.special_token_ids = build_language_backbone(
+            cfg.to_backbone_config(), special_tokens
+        )
 
     @property
     def model(self) -> nn.Module:
@@ -65,7 +66,10 @@ class LLMBackbone(nn.Module):
         """Run the LM; ``token_ids`` are the ids aligned with ``inputs_embeds`` (needed by
         Gemma 4's per-layer embeddings once image embeddings are spliced in, ignored otherwise)."""
         return self.core(
-            input_ids=input_ids, inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels,
+            input_ids=input_ids,
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            labels=labels,
             token_ids=token_ids,
         )
 
