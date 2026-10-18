@@ -25,10 +25,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "HaleBlocks" / "src
 
 import torch
 import torch.nn as nn
-
-from hale_core.profiling import ModelProfiler
 from hale_core.nn import GPTBackbone
-
+from hale_core.profiling import ModelProfiler
 
 # ---------------------------------------------------------------------------
 # Stub modules that match the real Hale-VLM architecture
