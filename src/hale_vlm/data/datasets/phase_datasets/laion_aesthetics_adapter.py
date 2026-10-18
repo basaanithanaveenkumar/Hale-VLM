@@ -1,4 +1,4 @@
-"""LAIONAestheticsAdapter: LAIONAestheticsAdapter."""
+"""Registry adapter for the ``laion-aesthetics-v2-5plus`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("laion-aesthetics-v2-5plus")
 class LAIONAestheticsAdapter(VLMDataAdapter):
+    """Registry adapter for ``laion-aesthetics-v2-5plus``.
+
+    Source: Hub dataset ``laion/laion2B-en-aesthetic``.
+
+    LAION-2B-en aesthetic subset (≥5.0); ~600M image-text pairs.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="laion-aesthetics-v2-5plus",
         hf_path="laion/laion2B-en-aesthetic",

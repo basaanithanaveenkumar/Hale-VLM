@@ -12,6 +12,7 @@ from PIL import Image
 
 from hale_vlm.data.adapters.base import _as_image, _first_present
 from hale_vlm.data.types import VLADatasetSpec, VLASample
+from hale_vlm.exceptions import DatasetUnavailableError
 
 
 def _as_float_list(value: Any) -> list[float] | None:
@@ -52,6 +53,25 @@ class VLADataAdapter(ABC):
         cache_dir: str | None = None,
         streaming: bool | None = None,
     ) -> Iterator[dict[str, Any]]:
+        """Open the raw row stream of this robotics dataset.
+
+        Args:
+            split: dataset split; defaults to the spec's default split.
+            max_samples: stop after this many rows (``None`` for all).
+            cache_dir: Hugging Face cache directory.
+            streaming: override the spec's streaming flag.
+
+        Returns:
+            An iterator over raw dataset rows.
+
+        Raises:
+            DatasetUnavailableError: if the dataset has no Hub path (collected locally).
+        """
+        if self.spec.requires_local_collection or self.spec.hf_path is None:
+            raise DatasetUnavailableError(
+                f"VLA dataset {self.spec.name!r} has no Hub path: it is collected locally "
+                "(see its description) and cannot be streamed from the registry"
+            )
         split = split or self.spec.default_split
         use_streaming = self.spec.streaming if streaming is None else streaming
         logger.info(
@@ -81,6 +101,14 @@ class VLADataAdapter(ABC):
         yield from dataset
 
     def normalize(self, row: dict[str, Any]) -> VLASample | None:
+        """Convert one raw row to a :class:`VLASample`.
+
+        Args:
+            row: raw (possibly nested) dataset row.
+
+        Returns:
+            The sample, or ``None`` when the row lacks a task string or any image.
+        """
         flat = _flatten_row(row)
         task = self._extract_task(flat)
         if not task:
@@ -109,6 +137,17 @@ class VLADataAdapter(ABC):
         cache_dir: str | None = None,
         streaming: bool | None = None,
     ) -> Iterator[VLASample]:
+        """Stream normalised robotics samples.
+
+        Args:
+            split: dataset split; defaults to the spec's default split.
+            max_samples: number of samples to produce (``None`` for all).
+            cache_dir: Hugging Face cache directory.
+            streaming: override the spec's streaming flag.
+
+        Yields:
+            Normalised :class:`VLASample` objects; unusable rows are skipped.
+        """
         produced = 0
         for row in self.open_stream(
             split=split,
@@ -166,6 +205,12 @@ class VLADataAdapter(ABC):
         return images
 
     def warmup(self, *, split: str | None = None, cache_dir: str | None = None) -> None:
+        """Fetch one row so the next dataset in a sequential stream is already downloaded.
+
+        Args:
+            split: dataset split; defaults to the spec's default split.
+            cache_dir: Hugging Face cache directory.
+        """
         iterator = self.open_stream(split=split, max_samples=1, cache_dir=cache_dir, streaming=True)
         try:
             next(iterator)

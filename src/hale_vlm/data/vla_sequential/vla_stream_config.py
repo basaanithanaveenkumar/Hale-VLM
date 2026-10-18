@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 @dataclass
 class VLAStreamConfig:
+    """Settings of :class:`SequentialVLAStream` (which datasets, caps, prefetch, streaming)."""
+
     dataset_names: Sequence[str]
     max_samples_per_dataset: int | None = None
     split: str = "train"

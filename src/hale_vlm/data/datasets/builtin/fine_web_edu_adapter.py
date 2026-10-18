@@ -1,4 +1,4 @@
-"""FineWebEduAdapter: FineWebEduAdapter."""
+"""Registry adapter for the ``fineweb-edu`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage
 
 @register_dataset("fineweb-edu")
 class FineWebEduAdapter(VLMDataAdapter):
+    """Registry adapter for ``fineweb-edu``.
+
+    Source: Hub dataset ``HuggingFaceFW/fineweb-edu``.
+
+    FineWeb-Edu short-context source for context extension.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="fineweb-edu",
         hf_path="HuggingFaceFW/fineweb-edu",

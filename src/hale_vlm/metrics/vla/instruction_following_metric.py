@@ -119,6 +119,7 @@ class InstructionFollowingMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._kw_hits: float = 0.0
         self._success: int = 0
         self._f1_sum: float = 0.0
@@ -174,6 +175,11 @@ class InstructionFollowingMetric(VLMMetricBase):
         self._count += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         n = max(self._count, 1)
         return {
             "keyword_hit_rate": self._kw_hits / n,

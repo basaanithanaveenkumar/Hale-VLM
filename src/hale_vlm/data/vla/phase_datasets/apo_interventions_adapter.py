@@ -1,4 +1,4 @@
-"""APOInterventionsAdapter: APOInterventionsAdapter."""
+"""Registry adapter for the ``apo-interventions`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,17 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("apo-interventions")
 class APOInterventionsAdapter(VLADataAdapter):
+    """Registry adapter for ``apo-interventions``.
+
+    Source: locally collected corpus, no Hub path.
+
+    APO (Action Preference Optimisation) — human-in-the-loop intervention preference data with
+    adaptive reweighting. Learns from sub-optimal correction trajectories. Requires local
+    collection.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="apo-interventions",
         hf_path=None,

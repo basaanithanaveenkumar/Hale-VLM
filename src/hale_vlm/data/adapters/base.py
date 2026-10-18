@@ -66,6 +66,17 @@ class VLMDataAdapter(ABC):
         cache_dir: str | None = None,
         streaming: bool | None = None,
     ) -> Iterator[dict[str, Any]]:
+        """Open the raw row stream of this dataset.
+
+        Args:
+            split: dataset split; defaults to the spec's default split.
+            max_samples: stop after this many rows (``None`` for all).
+            cache_dir: Hugging Face cache directory.
+            streaming: override the spec's streaming flag.
+
+        Returns:
+            An iterator over raw dataset rows.
+        """
         split = split or self.spec.default_split
         use_streaming = self.spec.streaming if streaming is None else streaming
         logger.info(
@@ -95,6 +106,14 @@ class VLMDataAdapter(ABC):
         yield from dataset
 
     def normalize(self, row: dict[str, Any]) -> VLMSample | None:
+        """Convert one raw row to a :class:`VLMSample`.
+
+        Args:
+            row: raw dataset row.
+
+        Returns:
+            The sample, or ``None`` when the row has no usable text/visual content.
+        """
         text = self._extract_text(row)
         if not text:
             return None
@@ -136,6 +155,17 @@ class VLMDataAdapter(ABC):
         cache_dir: str | None = None,
         streaming: bool | None = None,
     ) -> Iterator[VLMSample]:
+        """Stream normalised samples (Template Method over ``open_stream`` and ``normalize``).
+
+        Args:
+            split: dataset split; defaults to the spec's default split.
+            max_samples: number of samples to produce (``None`` for all).
+            cache_dir: Hugging Face cache directory.
+            streaming: override the spec's streaming flag.
+
+        Yields:
+            Normalised :class:`VLMSample` objects; unusable rows are skipped.
+        """
         produced = 0
         for row in self.open_stream(
             split=split,
@@ -194,6 +224,15 @@ class VLMDataAdapter(ABC):
 
 
 def dumps_row_preview(row: dict[str, Any], limit: int = 240) -> str:
+    """Return a JSON preview of ``row`` truncated to ``limit`` characters (for debug logs).
+
+    Args:
+        row: raw dataset row; non-JSON values are stringified.
+        limit: maximum preview length.
+
+    Returns:
+        The possibly truncated JSON string.
+    """
     preview = {k: type(v).__name__ for k, v in row.items()}
     text = json.dumps(preview, sort_keys=True)
     return text if len(text) <= limit else text[: limit - 3] + "..."

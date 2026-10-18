@@ -1,4 +1,4 @@
-"""AgibotWorldAdapter: AgibotWorldAdapter."""
+"""Registry adapter for the ``agibot-world`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("agibot-world")
 class AgibotWorldAdapter(VLADataAdapter):
+    """Registry adapter for ``agibot-world``.
+
+    Source: Hub dataset ``lerobot/xvla-agibot-world``.
+
+    AgiBot World — bimanual real-world manipulation used in X-VLA pretraining. High-quality
+    dexterous tasks with rich scene diversity.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="agibot-world",
         hf_path="lerobot/xvla-agibot-world",

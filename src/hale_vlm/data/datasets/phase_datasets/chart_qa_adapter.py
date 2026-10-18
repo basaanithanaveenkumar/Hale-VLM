@@ -1,4 +1,4 @@
-"""ChartQAAdapter: ChartQAAdapter."""
+"""Registry adapter for the ``chartqa`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("chartqa")
 class ChartQAAdapter(VLMDataAdapter):
+    """Registry adapter for ``chartqa``.
+
+    Source: Hub dataset ``HuggingFaceM4/ChartQA``.
+
+    ChartQA — 32K QA on charts requiring numerical reasoning.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="chartqa",
         hf_path="HuggingFaceM4/ChartQA",

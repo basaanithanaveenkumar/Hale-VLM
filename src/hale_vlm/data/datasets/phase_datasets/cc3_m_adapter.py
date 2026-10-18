@@ -1,4 +1,4 @@
-"""CC3MAdapter: CC3MAdapter."""
+"""Registry adapter for the ``cc3m`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("cc3m")
 class CC3MAdapter(VLMDataAdapter):
+    """Registry adapter for ``cc3m``.
+
+    Source: Hub dataset ``pixparse/cc3m-wds``.
+
+    Conceptual Captions 3M — 3.3M image-alt-text pairs.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="cc3m",
         hf_path="pixparse/cc3m-wds",

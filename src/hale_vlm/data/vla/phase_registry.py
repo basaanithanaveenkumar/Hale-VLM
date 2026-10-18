@@ -41,7 +41,7 @@ def list_vla_phase_datasets(
     *,
     phase: VLATrainingPhase | str | None = None,
     enabled_only: bool = True,
-) -> list[VLADataAdapter]:
+) -> list[type[VLADataAdapter]]:
     """Return adapter classes from the VLA phase registry.
 
     Triggers a one-time auto-import of ``hale_vlm.data.vla.phase_datasets``.
@@ -56,7 +56,7 @@ def list_vla_phase_datasets(
     importlib.import_module("hale_vlm.data.vla.phase_datasets")
 
     adapters = []
-    for _name, adapter_cls in VLA_PHASE_DATASETS.items():
+    for _name, adapter_cls in VLA_PHASE_DATASETS.items.items():
         spec = getattr(adapter_cls, "spec", None)
         if enabled_only and spec is not None and not spec.enabled:
             continue

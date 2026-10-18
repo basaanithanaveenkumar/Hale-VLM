@@ -40,6 +40,7 @@ class BLEUMetric(VLMMetricBase):
 
     def reset(self) -> None:
         # clipped_match[n] = total clipped n-gram matches across corpus
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._clipped: list[int] = [0] * self._MAX_N
         # total[n] = total hypothesis n-grams across corpus
         self._total: list[int] = [0] * self._MAX_N
@@ -92,6 +93,11 @@ class BLEUMetric(VLMMetricBase):
 
     def compute(self) -> dict[str, float]:
         # Brevity penalty: BP = 1 if hyp_len > ref_len else exp(1 - ref/hyp)
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         if self._hyp_len == 0:
             return {f"bleu_{n}": 0.0 for n in range(1, 5)} | {"bleu": 0.0}
         bp = (

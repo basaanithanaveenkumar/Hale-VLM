@@ -162,6 +162,7 @@ class DeepStackFilm(BackboneFilm):
         return canvas
 
     def frames(self) -> Iterator[tuple[FilmCanvas, int]]:
+        """Yield ``(canvas, hold)``: each drawn frame and how many GIF ticks it stays."""
         yield self._draw(0, 0, "Image patches enter the ViT; prompt tokens wait at the LLM"), 1200
         for layer in range(1, self.vit_depth + 1):
             tapped = (layer - 1) in self.taps

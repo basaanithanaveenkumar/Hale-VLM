@@ -40,9 +40,19 @@ class QFormerLayer(nn.Module):
 
     @property
     def has_cross_attention(self) -> bool:
+        """Whether this layer cross-attends to the vision memory (every Nth layer)."""
         return self.cross_attn is not None
 
     def forward(self, queries: torch.Tensor, memory: torch.Tensor) -> torch.Tensor:
+        """Self-attention, optional cross-attention to ``memory``, then an MLP.
+
+        Args:
+            queries: ``[B, Q, H]``.
+            memory: vision features ``[B, N, H]``.
+
+        Returns:
+            Updated queries ``[B, Q, H]``.
+        """
         h = self.self_norm(queries)
         queries = queries + self.self_attn(h, h, h, need_weights=False)[0]
         if self.cross_attn is not None:

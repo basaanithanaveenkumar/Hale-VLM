@@ -34,6 +34,7 @@ class ROUGEMetric(VLMMetricBase):
 
     def reset(self) -> None:
         # Accumulators per ROUGE variant: (precision_sum, recall_sum, f1_sum, count)
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._stats: dict[str, list[float]] = {
             "rouge_1": [0.0, 0.0, 0.0, 0],
             "rouge_2": [0.0, 0.0, 0.0, 0],
@@ -90,6 +91,11 @@ class ROUGEMetric(VLMMetricBase):
         self._stats["rouge_l"][3] += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         out: dict[str, float] = {}
         for key, (p_sum, r_sum, f_sum, n) in self._stats.items():
             n = max(n, 1)

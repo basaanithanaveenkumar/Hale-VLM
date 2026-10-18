@@ -22,11 +22,20 @@ class VisionEncoderAdapter(VLMPartAdapter):
     """
 
     def build_part(self, vlm: nn.Module) -> nn.Module:
+        """Wrap the trained VLM's sub-modules in the exportable part module.
+
+        Args:
+            vlm: the built :class:`HaleVLM`.
+
+        Returns:
+            The ``nn.Module`` that is traced / exported.
+        """
         return VisionEncoderModule(
             vlm.vision, vlm.projector, self.run_cfg.model.vision.resolved_num_image_tokens()
         )
 
     def default_signature(self) -> IOSignature:
+        """The part's input/output tensor signature (names, dtypes, dynamic axes)."""
         size = self.image_size
         return IOSignature.from_config(
             {
@@ -44,10 +53,19 @@ class VisionEncoderAdapter(VLMPartAdapter):
         )
 
     def calibration_batches(self, num_batches: int) -> Iterator[dict[str, torch.Tensor]] | None:
+        """Calibration inputs for quantisation.
+
+        Args:
+            num_batches: number of batches to produce.
+
+        Returns:
+            An iterator of input dicts, or ``None`` when no calibration data is configured.
+        """
         images = self.calibration_images_batches(num_batches)
         return None if images is None else ({"pixel_values": px} for px in images)
 
     def describe(self) -> dict[str, Any]:
+        """Metadata recorded with the artifact: image size, token count, hidden size."""
         return {
             "image_size": self.image_size,
             "image_tokens": self.num_image_tokens,

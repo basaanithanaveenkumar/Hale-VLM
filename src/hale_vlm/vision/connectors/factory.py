@@ -2,43 +2,38 @@
 
 from __future__ import annotations
 
-import torch.nn as nn
+from torch import nn
 
-from hale_vlm.config.sections.vision import TOKEN_CONNECTOR_TYPES, VisionConfig
+from hale_vlm.config.sections.vision import VisionConfig
 from hale_vlm.exceptions import VLMConfigError
-from hale_vlm.vision.connectors.gated_cross_attention import GatedCrossAttentionProjector
-from hale_vlm.vision.connectors.qformer import QFormer
+from hale_vlm.vision.connectors.gated_cross_attention import (
+    GatedCrossAttentionProjector,  # noqa: F401
+)
+from hale_vlm.vision.connectors.qformer import QFormer  # noqa: F401  (import registers it)
+from hale_vlm.vision.connectors.registry import VISION_CONNECTORS
 
 
 def build_vision_connector(vision_dim: int, llm_dim: int, cfg: VisionConfig) -> nn.Module:
-    """Return the Q-Former or gated cross-attention connector selected by ``projector_type``."""
-    if cfg.projector_type == "qformer":
-        q = cfg.qformer
-        return QFormer(
-            vision_dim,
-            llm_dim,
-            num_queries=q.num_queries,
-            hidden_dim=q.hidden_dim,
-            num_layers=q.num_layers,
-            num_heads=q.num_heads,
-            cross_attention_freq=q.cross_attention_freq,
-            ffn_mult=q.ffn_mult,
-            dropout=q.dropout,
+    """Build the connector registered for ``cfg.projector_type`` (Factory over a Registry).
+
+    Adding a connector means registering a class with
+    :func:`~hale_vlm.vision.connectors.registry.register_vision_connector`; this function does not
+    change.
+
+    Args:
+        vision_dim: channel size of the vision encoder tokens.
+        llm_dim: hidden size of the language model.
+        cfg: vision config; ``projector_type`` selects the connector.
+
+    Returns:
+        The connector module mapping ``[B, N, vision_dim]`` to ``[B, T, llm_dim]``.
+
+    Raises:
+        VLMConfigError: if ``projector_type`` is not a registered token connector.
+    """
+    if cfg.projector_type not in VISION_CONNECTORS:
+        raise VLMConfigError(
+            f"projector_type={cfg.projector_type!r} is not a token connector; "
+            f"expected one of {sorted(VISION_CONNECTORS.keys())}"
         )
-    if cfg.projector_type == "gated_cross_attention":
-        g = cfg.gated_cross_attention
-        return GatedCrossAttentionProjector(
-            vision_dim,
-            llm_dim,
-            num_latents=g.num_latents,
-            hidden_dim=g.hidden_dim,
-            num_layers=g.num_layers,
-            num_heads=g.num_heads,
-            ffn_mult=g.ffn_mult,
-            dropout=g.dropout,
-            gate_init=g.gate_init,
-        )
-    raise VLMConfigError(
-        f"projector_type={cfg.projector_type!r} is not a token connector; "
-        f"expected one of {TOKEN_CONNECTOR_TYPES}"
-    )
+    return VISION_CONNECTORS.get(cfg.projector_type).from_config(vision_dim, llm_dim, cfg)

@@ -6,6 +6,11 @@ _REGISTERED = False
 
 
 def register_vlm_plugins() -> None:
+    """Import every module that registers a VLM plugin (idempotent).
+
+    Registration happens on import, so this is the single call a launcher (or a Ray worker)
+    needs before it resolves configs, models, losses, datasets or the trainer by name.
+    """
     global _REGISTERED
     if _REGISTERED:
         return

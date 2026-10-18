@@ -194,6 +194,7 @@ class MRoPEPositionFilm(BackboneFilm):
         return canvas
 
     def frames(self) -> Iterator[tuple[FilmCanvas, int]]:
+        """Yield ``(canvas, hold)``: each drawn frame and how many GIF ticks it stays."""
         for shown in range(1, len(self.tokens) + 1):
             kind = self.tokens[shown - 1][1]
             first_of_kind = shown == 1 or self.tokens[shown - 2][1] != kind

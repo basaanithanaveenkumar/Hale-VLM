@@ -1,4 +1,4 @@
-"""SvlaSO100SortingAdapter: SvlaSO100SortingAdapter."""
+"""Registry adapter for the ``svla-so100-sorting`` dataset."""
 
 from __future__ import annotations
 
@@ -12,6 +12,14 @@ from hale_vlm.data.vla_registry import register_vla_dataset
 
 @register_vla_dataset("svla-so100-sorting")
 class SvlaSO100SortingAdapter(VLADataAdapter):
+    """Registry adapter for ``svla-so100-sorting``.
+
+    Source: Hub dataset ``lerobot/svla_so100_sorting``.
+
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="svla-so100-sorting",
         hf_path="lerobot/svla_so100_sorting",

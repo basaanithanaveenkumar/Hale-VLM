@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from typing import Any
+
 import torch
 import torch.nn as nn
 from hale_core.registry import register_model
@@ -41,9 +44,10 @@ class HaleVLM(nn.Module):
 
     @property
     def num_image_tokens(self) -> int:
+        """Number of visual tokens the projector emits per image."""
         return self.cfg.model.vision.resolved_num_image_tokens()
 
-    def trainable_parameters(self):
+    def trainable_parameters(self) -> Iterator[nn.Parameter]:
         """Parameters updated during fine-tuning: projector, optional vision, LoRA adapters."""
         yield from iter_trainable_parameters(self.projector)
         if not self.cfg.model.vision.freeze_encoder:
@@ -69,10 +73,19 @@ class HaleVLM(nn.Module):
         )
 
     @property
-    def tokenizer(self):
+    def tokenizer(self) -> Any:
+        """The LLM tokenizer."""
         return self.llm.tokenizer
 
     def encode_images(self, pixel_values: torch.Tensor) -> torch.Tensor:
+        """Encode and project images into LLM embedding space.
+
+        Args:
+            pixel_values: ``[B, 3, H, W]`` normalised images.
+
+        Returns:
+            ``[B, N, H_llm]`` visual tokens.
+        """
         vision_features = self.vision(pixel_values)
         projected = self.projector(vision_features)
         num_tokens = self.cfg.model.vision.resolved_num_image_tokens()
@@ -160,7 +173,18 @@ class HaleVLM(nn.Module):
         attention_mask: torch.Tensor | None = None,
         pixel_values: torch.Tensor | None = None,
         labels: torch.Tensor | None = None,
-    ):
+    ) -> Any:
+        """Run the VLM with the image tokens spliced into the text embeddings.
+
+        Args:
+            input_ids: ``[B, S]`` ids containing one image token per sample.
+            attention_mask: ``[B, S]`` mask; with images it is rebuilt for the spliced sequence.
+            pixel_values: ``[B, 3, H, W]`` images (text-only when omitted).
+            labels: ``[B, S]`` targets with ``-100`` on prompt tokens.
+
+        Returns:
+            The backbone output (logits, and loss when ``labels`` is given).
+        """
         text_embeds = self.llm.embed_tokens(input_ids)
         token_ids = input_ids
         if pixel_values is not None:
@@ -185,10 +209,20 @@ class HaleVLM(nn.Module):
 
     @classmethod
     def from_config(cls, cfg: VLMRunConfig) -> HaleVLM:
+        """Build a VLM from a validated run config (the registry factory).
+
+        Args:
+            cfg: the VLM run config.
+        """
         return cls(vocab_size=0, cfg=cfg)
 
 
 def build_vlm(cfg: VLMRunConfig) -> HaleVLM:
+    """Build a :class:`HaleVLM` from ``cfg`` (convenience wrapper over :meth:`HaleVLM.from_config`).
+
+    Example:
+        >>> model = build_vlm(load_vlm_config("configs/base.yaml"))  # doctest: +SKIP
+    """
     return HaleVLM.from_config(cfg)
 
 

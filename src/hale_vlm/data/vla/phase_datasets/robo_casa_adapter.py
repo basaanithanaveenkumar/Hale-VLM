@@ -1,4 +1,4 @@
-"""RoboCasaAdapter: RoboCasaAdapter."""
+"""Registry adapter for the ``robocasa`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("robocasa")
 class RoboCasaAdapter(VLADataAdapter):
+    """Registry adapter for ``robocasa``.
+
+    Source: Hub dataset ``lerobot/robocasa``.
+
+    RoboCasa — scalable household manipulation rollouts across diverse kitchen and living room
+    layouts. Enables generalist policy pretraining at simulation scale.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="robocasa",
         hf_path="lerobot/robocasa",

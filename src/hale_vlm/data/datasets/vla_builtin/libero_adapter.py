@@ -1,4 +1,4 @@
-"""LiberoAdapter: LiberoAdapter."""
+"""Registry adapter for the ``libero`` dataset."""
 
 from __future__ import annotations
 
@@ -12,6 +12,14 @@ from hale_vlm.data.vla_registry import register_vla_dataset
 
 @register_vla_dataset("libero")
 class LiberoAdapter(VLADataAdapter):
+    """Registry adapter for ``libero``.
+
+    Source: Hub dataset ``physical-intelligence/libero``.
+
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="libero",
         hf_path="physical-intelligence/libero",

@@ -1,4 +1,4 @@
-"""Vista400KAdapter: Vista400KAdapter."""
+"""Registry adapter for the ``vista-400k`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("vista-400k")
 class Vista400KAdapter(VideoDatasetAdapter):
+    """Registry adapter for ``vista-400k``.
+
+    Source: Hub dataset ``TIGER-Lab/VISTA-400K``.
+
+    VISTA-400K temporal video understanding.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="vista-400k",
         hf_path="TIGER-Lab/VISTA-400K",

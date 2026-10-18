@@ -123,6 +123,7 @@ class ImageTilingFilm(BackboneFilm):
         return canvas
 
     def frames(self) -> Iterator[tuple[FilmCanvas, int]]:
+        """Yield ``(canvas, hold)``: each drawn frame and how many GIF ticks it stays."""
         yield (
             self._draw("image", 0, 0.0, "resize so both sides are multiples of the tile size"),
             1500,

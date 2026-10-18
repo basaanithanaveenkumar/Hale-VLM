@@ -1,4 +1,4 @@
-"""ShareGPT4VPTAdapter: ShareGPT4VPTAdapter."""
+"""Registry adapter for the ``sharegpt4v-pt`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("sharegpt4v-pt")
 class ShareGPT4VPTAdapter(VLMDataAdapter):
+    """Registry adapter for ``sharegpt4v-pt``.
+
+    Source: Hub dataset ``Lin-Chen/ShareGPT4V``.
+
+    ShareGPT4V 1.2M GPT-4V captions.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="sharegpt4v-pt",
         hf_path="Lin-Chen/ShareGPT4V",

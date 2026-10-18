@@ -1,4 +1,4 @@
-"""LLaVAPretrain558KAdapter: LLaVAPretrain558KAdapter."""
+"""Registry adapter for the ``llava-pretrain-558k`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("llava-pretrain-558k")
 class LLaVAPretrain558KAdapter(VLMDataAdapter):
+    """Registry adapter for ``llava-pretrain-558k``.
+
+    Source: Hub dataset ``liuhaotian/LLaVA-Pretrain``.
+
+    LLaVA pretraining 558K BLIP-generated captions from CC3M.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="llava-pretrain-558k",
         hf_path="liuhaotian/LLaVA-Pretrain",

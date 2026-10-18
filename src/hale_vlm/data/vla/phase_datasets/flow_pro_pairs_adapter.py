@@ -1,4 +1,4 @@
-"""FlowPROPairsAdapter: FlowPROPairsAdapter."""
+"""Registry adapter for the ``flowpro-pairs`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,17 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("flowpro-pairs")
 class FlowPROPairsAdapter(VLADataAdapter):
+    """Registry adapter for ``flowpro-pairs``.
+
+    Source: locally collected corpus, no Hub path.
+
+    FlowPRO rollback preference pairs — a single operator intervention yields a (winner, loser)
+    trajectory pair via operator-chosen rollback horizon. No separate positive/negative
+    recordings needed. Requires local robot deployment to collect.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="flowpro-pairs",
         hf_path=None,

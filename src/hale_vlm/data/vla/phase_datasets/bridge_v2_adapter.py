@@ -1,4 +1,4 @@
-"""BridgeV2Adapter: BridgeV2Adapter."""
+"""Registry adapter for the ``bridge-v2`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("bridge-v2")
 class BridgeV2Adapter(VLADataAdapter):
+    """Registry adapter for ``bridge-v2``.
+
+    Source: Hub dataset ``lerobot/bridge_data_v2``.
+
+    BridgeData V2 — 2.26M steps on WidowX arm. Standard cross-embodiment eval; diverse household
+    manipulation. lerobot/bridge_data_v2 (canonical LeRobot location).
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="bridge-v2",
         hf_path="lerobot/bridge_data_v2",

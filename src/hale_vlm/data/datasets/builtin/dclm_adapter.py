@@ -1,4 +1,4 @@
-"""DCLMAdapter: DCLMAdapter."""
+"""Registry adapter for the ``dclm`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage
 
 @register_dataset("dclm")
 class DCLMAdapter(VLMDataAdapter):
+    """Registry adapter for ``dclm``.
+
+    Source: Hub dataset ``mlfoundations/dclm-baseline-1.0``.
+
+    DCLM baseline corpus for context extension.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="dclm",
         hf_path="mlfoundations/dclm-baseline-1.0",

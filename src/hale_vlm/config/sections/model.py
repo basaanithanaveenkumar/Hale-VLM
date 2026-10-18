@@ -1,3 +1,5 @@
+"""The ``model`` section of a VLM run config."""
+
 from hale_core.config.sections.model import ModelConfig
 from pydantic import Field
 

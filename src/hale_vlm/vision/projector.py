@@ -26,6 +26,14 @@ class VisionProjector(nn.Module):
             )
 
     def forward(self, vision_features: torch.Tensor) -> torch.Tensor:
+        """Project vision features into the LLM embedding space.
+
+        Args:
+            vision_features: ``[B, N, D_vision]``.
+
+        Returns:
+            ``[B, N', D_llm]``.
+        """
         return self.net(vision_features)
 
 

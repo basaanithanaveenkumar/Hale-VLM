@@ -1,4 +1,4 @@
-"""RoboGeneAdapter: RoboGeneAdapter."""
+"""Registry adapter for the ``robogene`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,17 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("robogene")
 class RoboGeneAdapter(VLADataAdapter):
+    """Registry adapter for ``robogene``.
+
+    Source: Hub dataset ``X-Humanoid/RoboGene``.
+
+    RoboGene — VLA-specific pretraining dataset via diversity-driven agentic generation.
+    Addresses limited scene variety and insufficient physical grounding in existing corpora.
+    LeRobot-compatible.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="robogene",
         hf_path="X-Humanoid/RoboGene",

@@ -1,4 +1,4 @@
-"""DocmatixAdapter: DocmatixAdapter."""
+"""Registry adapter for the ``docmatix`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VisionCate
 
 @register_dataset("docmatix")
 class DocmatixAdapter(VLMDataAdapter):
+    """Registry adapter for ``docmatix``.
+
+    Source: Hub dataset ``HuggingFaceM4/Docmatix``.
+
+    Document understanding and OCR-heavy visual QA.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="docmatix",
         hf_path="HuggingFaceM4/Docmatix",

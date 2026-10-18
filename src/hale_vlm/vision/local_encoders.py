@@ -161,7 +161,7 @@ class LocalVisionTower(nn.Module):
         # Fallback: wrap pooled embedding as a single-token sequence
         return out.pooled_output.unsqueeze(1)  # [B, 1, D]
 
-    def get_feature_maps(self, pixel_values: Tensor):
+    def get_feature_maps(self, pixel_values: Tensor) -> list[Tensor]:
         """Return multi-scale feature maps for dense tasks.
 
         Useful if the VLM has a dense grounding head that reads spatial features.

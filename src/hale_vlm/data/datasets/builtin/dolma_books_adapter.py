@@ -1,4 +1,4 @@
-"""DolmaBooksAdapter: DolmaBooksAdapter."""
+"""Registry adapter for the ``dolma-books`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage
 
 @register_dataset("dolma-books")
 class DolmaBooksAdapter(VLMDataAdapter):
+    """Registry adapter for ``dolma-books``.
+
+    Source: Hub dataset ``allenai/dolma``.
+
+    Dolma books subset for 2k→16k context extension.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="dolma-books",
         hf_path="allenai/dolma",

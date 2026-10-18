@@ -101,6 +101,7 @@ class DynamicResolutionFilm(BackboneFilm):
         canvas.text(centre_x, 1.35, label, size=9.5, colour=colour)
 
     def frames(self) -> Iterator[tuple[FilmCanvas, int]]:
+        """Yield ``(canvas, hold)``: each drawn frame and how many GIF ticks it stays."""
         palette = self.palette
         fixed_cells = self.fixed // self.factor
         for height, width in self.sizes:

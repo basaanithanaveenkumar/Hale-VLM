@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from hale_core.nn import optim as optim_module
 from hale_core.registry import register_trainer
 from hale_core.training.trainer import Trainer
@@ -11,7 +13,12 @@ from hale_core.training.trainer import Trainer
 class VLMTrainer(Trainer):
     """Trainer that passes only trainable parameters to the optimizer."""
 
-    def fit(self):
+    def fit(self) -> Any:
+        """Run training, building the optimizer over trainable parameters only.
+
+        Returns:
+            The base trainer's result.
+        """
         original_build_optimizer = optim_module.build_optimizer
 
         def filtered_build_optimizer(opt_type, params, config):

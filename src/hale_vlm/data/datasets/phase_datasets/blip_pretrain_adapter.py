@@ -1,4 +1,4 @@
-"""BLIPPretrainAdapter: BLIPPretrainAdapter."""
+"""Registry adapter for the ``blip-laion-cc-sbu-558k`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("blip-laion-cc-sbu-558k")
 class BLIPPretrainAdapter(VLMDataAdapter):
+    """Registry adapter for ``blip-laion-cc-sbu-558k``.
+
+    Source: Hub dataset ``BleachNick/BLIP_laion_cc_sbu_558k``.
+
+    BLIP pretraining LAION+CC3M+SBU mixture.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="blip-laion-cc-sbu-558k",
         hf_path="BleachNick/BLIP_laion_cc_sbu_558k",

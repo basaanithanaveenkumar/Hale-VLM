@@ -92,6 +92,7 @@ class TokenStreamFilm(BackboneFilm):
         return canvas
 
     def frames(self) -> Iterator[tuple[FilmCanvas, int]]:
+        """Yield ``(canvas, hold)``: each drawn frame and how many GIF ticks it stays."""
         caption = "The processor expands every image into placeholder tokens before the LLM runs"
         for shown in range(1, len(self.chips) + 1):
             caption = self.notes.get(shown - 1, caption)

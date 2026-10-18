@@ -1,4 +1,4 @@
-"""MathWritingAdapter: MathWritingAdapter."""
+"""Registry adapter for the ``mathwriting`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VisionCate
 
 @register_dataset("mathwriting")
 class MathWritingAdapter(VLMDataAdapter):
+    """Registry adapter for ``mathwriting``.
+
+    Source: Hub dataset ``google/mathwriting``.
+
+    Handwritten mathematical expression recognition.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="mathwriting",
         hf_path="google/mathwriting",

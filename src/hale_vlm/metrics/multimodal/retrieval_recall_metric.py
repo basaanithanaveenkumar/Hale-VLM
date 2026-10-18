@@ -47,6 +47,7 @@ class RetrievalRecallMetric(VLMMetricBase):
 
     def reset(self) -> None:
         # list of (pair_id, image_emb, text_emb)
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._items: list[tuple[int, Tensor, Tensor]] = []
 
     def update(  # type: ignore[override]
@@ -69,6 +70,11 @@ class RetrievalRecallMetric(VLMMetricBase):
         self._items.append((pair_id, img, txt))
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         if not self._items:
             return (
                 {f"i2t_r{k}": 0.0 for k in self.ks}

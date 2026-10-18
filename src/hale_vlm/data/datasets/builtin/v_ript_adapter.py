@@ -1,4 +1,4 @@
-"""VRiptAdapter: VRiptAdapter."""
+"""Registry adapter for the ``vript`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("vript")
 class VRiptAdapter(VideoDatasetAdapter):
+    """Registry adapter for ``vript``.
+
+    Source: Hub dataset ``Mutonix/Vript``.
+
+    Vript long-form video captioning.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="vript",
         hf_path="Mutonix/Vript",

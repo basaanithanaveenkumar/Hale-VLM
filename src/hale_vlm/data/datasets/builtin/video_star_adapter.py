@@ -1,4 +1,4 @@
-"""VideoStarAdapter: VideoStarAdapter."""
+"""Registry adapter for the ``videostar`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("videostar")
 class VideoStarAdapter(VideoDatasetAdapter):
+    """Registry adapter for ``videostar``.
+
+    Source: Hub dataset ``orrzohar/Video-STaR``.
+
+    Video-STaR self-training video instruction tuning.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="videostar",
         hf_path="orrzohar/Video-STaR",

@@ -14,7 +14,7 @@ class VLADatasetSpec:
     """Static metadata for a registered VLA / robotics dataset."""
 
     name: str
-    hf_path: str
+    hf_path: str | None
     stage: VLAStage
     embodiment: RobotEmbodiment = RobotEmbodiment.SO100
     description: str = ""
@@ -32,3 +32,5 @@ class VLADatasetSpec:
     episodes: int | None = None
     # High-level training phase (pretrain / mid_train / post_train). Optional.
     phase: VLATrainingPhase | None = None
+    # True for corpora with no Hub path (collected on the robot); streaming them raises.
+    requires_local_collection: bool = False

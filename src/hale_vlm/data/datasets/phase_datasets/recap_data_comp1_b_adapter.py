@@ -1,4 +1,4 @@
-"""RecapDataComp1BAdapter: RecapDataComp1BAdapter."""
+"""Registry adapter for the ``recap-datacomp-1b`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("recap-datacomp-1b")
 class RecapDataComp1BAdapter(VLMDataAdapter):
+    """Registry adapter for ``recap-datacomp-1b``.
+
+    Source: Hub dataset ``BAAI/Recap-DataComp-1B``.
+
+    DataComp-1B re-captioned with LLaVA-1.5.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="recap-datacomp-1b",
         hf_path="BAAI/Recap-DataComp-1B",

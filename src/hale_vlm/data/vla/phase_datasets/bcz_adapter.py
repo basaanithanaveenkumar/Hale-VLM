@@ -1,4 +1,4 @@
-"""BCZAdapter: BCZAdapter."""
+"""Registry adapter for the ``bc-z`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("bc-z")
 class BCZAdapter(VLADataAdapter):
+    """Registry adapter for ``bc-z``.
+
+    Source: Hub dataset ``lerobot/bc_z``.
+
+    BC-Z — 25K robot episodes across 100 tasks on Google's robot. Collected via human
+    demonstration and teleoperation.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="bc-z",
         hf_path="lerobot/bc_z",

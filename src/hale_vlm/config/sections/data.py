@@ -12,6 +12,12 @@ from hale_vlm.exceptions import VLMConfigError
 
 
 class VLMDataConfig(DataConfig):
+    """Data section of a VLM run: HaleBlocks' ``DataConfig`` plus registry-driven sources.
+
+    Pattern: Strategy by ``source`` (``huggingface``, ``overfit``, ``registry``, ``phase_registry``,
+    ``vla_registry``, ``mixed_registry``); dataset lists are resolved by the ``resolved_*`` methods.
+    """
+
     source: Literal[
         "huggingface",
         "overfit",
@@ -43,6 +49,11 @@ class VLMDataConfig(DataConfig):
         return self
 
     def model_post_init(self, __context) -> None:
+        """Fill empty dataset lists with the full SmolVLM / SmolVLA catalogs.
+
+        Args:
+            __context: pydantic validation context (unused).
+        """
         if not self.registry_datasets:
             from hale_vlm.data.catalog import SMOLVLM_ALL_DATASETS
 
@@ -81,6 +92,11 @@ class VLMDataConfig(DataConfig):
         return self.registry_datasets
 
     def resolved_vla_registry_datasets(self) -> list[str]:
+        """Dataset names to stream from the robotics (VLA) registry.
+
+        Returns:
+            The ``vla_registry_stage`` preset, or ``vla_registry_datasets`` for stage ``all``.
+        """
         from hale_vlm.data.vla_catalog import (
             SMOLVLA_ALL_DATASETS,
             SMOLVLA_COMMUNITY_DATASETS,
@@ -99,9 +115,11 @@ class VLMDataConfig(DataConfig):
         return self.vla_registry_datasets
 
     def robotics_in_vlm_enabled(self) -> bool:
+        """Whether robotics episodes are converted into VLM samples (mode is not off)."""
         return self.robotics_vlm_mode != RoboticsVLMMode.OFF
 
     def uses_registry_stream(self) -> bool:
+        """Whether training reads the registry streaming path instead of a single HF dataset."""
         return (
             self.source in {"registry", "phase_registry", "mixed_registry"}
             or self.robotics_in_vlm_enabled()

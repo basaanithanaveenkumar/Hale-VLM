@@ -151,6 +151,7 @@ class PipelineFilm(BackboneFilm):
         return canvas
 
     def frames(self) -> Iterator[tuple[FilmCanvas, int]]:
+        """Yield ``(canvas, hold)``: each drawn frame and how many GIF ticks it stays."""
         yield self._draw(0, None, 0.0), 900
         for hop in range(len(self.stages) - 1):
             for step in range(1, self.steps_per_hop + 1):

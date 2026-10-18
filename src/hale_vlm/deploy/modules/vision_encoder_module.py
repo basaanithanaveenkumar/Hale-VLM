@@ -26,6 +26,14 @@ class VisionEncoderModule(nn.Module):
         self.num_tokens = num_tokens
 
     def forward(self, pixel_values: torch.Tensor) -> torch.Tensor:
+        """Encode and project images.
+
+        Args:
+            pixel_values: ``[B, 3, H, W]`` normalised images.
+
+        Returns:
+            Image embeddings ``[B, N, H_llm]`` in the language model's space.
+        """
         projected = self.projector(self.vision(pixel_values))
         # Same truncation as HaleVLM.encode_images: connectors may emit more tokens than used.
         return projected[:, : self.num_tokens]

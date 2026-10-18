@@ -1,4 +1,4 @@
-"""FineVideoAdapter: FineVideoAdapter."""
+"""Registry adapter for the ``finevideo`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("finevideo")
 class FineVideoAdapter(VideoDatasetAdapter):
+    """Registry adapter for ``finevideo``.
+
+    Source: Hub dataset ``HuggingFaceFV/finevideo``.
+
+    FineVideo narrative and temporal video understanding.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="finevideo",
         hf_path="HuggingFaceFV/finevideo",

@@ -1,4 +1,4 @@
-"""TextVQAAdapter: TextVQAAdapter."""
+"""Registry adapter for the ``textvqa`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("textvqa")
 class TextVQAAdapter(VLMDataAdapter):
+    """Registry adapter for ``textvqa``.
+
+    Source: Hub dataset ``Howard-hou/TextVQA_0.5.1``.
+
+    TextVQA — 45K VQA questions on text in natural images.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="textvqa",
         hf_path="Howard-hou/TextVQA_0.5.1",

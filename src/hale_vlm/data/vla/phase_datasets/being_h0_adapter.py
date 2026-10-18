@@ -1,4 +1,4 @@
-"""BeingH0Adapter: BeingH0Adapter."""
+"""Registry adapter for the ``being-h0`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("being-h0")
 class BeingH0Adapter(VLADataAdapter):
+    """Registry adapter for ``being-h0``.
+
+    Source: Hub dataset ``BeingBeyond/Being-H0``.
+
+    Being-H0 post-training dataset — pretrained from large-scale human videos via explicit hand
+    motion modelling. Bridges embodiment gap using egocentric 2D/3D cues.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="being-h0",
         hf_path="BeingBeyond/Being-H0",

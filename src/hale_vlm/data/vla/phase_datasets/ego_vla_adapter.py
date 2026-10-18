@@ -1,4 +1,4 @@
-"""EgoVLAAdapter: EgoVLAAdapter."""
+"""Registry adapter for the ``egovla`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("egovla")
 class EgoVLAAdapter(VLADataAdapter):
+    """Registry adapter for ``egovla``.
+
+    Source: Hub dataset ``EgoVLA/EgoVLA``.
+
+    EgoVLA — large-scale egocentric human video corpus for VLA pretraining. Overcomes robot data
+    scarcity via human-to-robot cross-embodiment transfer.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="egovla",
         hf_path="EgoVLA/EgoVLA",

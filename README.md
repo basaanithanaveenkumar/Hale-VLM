@@ -6,7 +6,7 @@
 [![Project Page](https://img.shields.io/badge/🌐_Project-Page-4A90D9)](https://basaanithanaveenkumar.github.io/Hale-VLM/)
 [![arXiv](https://img.shields.io/badge/arXiv-paper-b31b1b?logo=arxiv&logoColor=white)](https://github.com/basaanithanaveenkumar/Hale-VLM/blob/main/paper/main.tex)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
 </div>
 
@@ -41,9 +41,47 @@ flowchart LR
 
 > **Note:** This repo has been merged into [Halo-VLM](https://github.com/basaanithanaveenkumar/Halo-VLM). Use the Halo-VLM repo for ongoing work — it contains both `src/hale_vlm/` and `src/halo_vlm/`.
 
-Vision-language models built on Qwen3 and DeepSeek-R1 LLM backbones, powered by HaleBlocks.
+Vision-language models built on Qwen3 and DeepSeek-R1 LLM backbones (and any other registered
+HaleBlocks backbone), powered by [HaleBlocks](https://github.com/basaanithanaveenkumar/HaleBlocks).
 
-See the Halo-VLM README for install and usage.
+## Install
+
+Python 3.12+. `hale-blocks` is pulled from GitHub (`[tool.uv.sources]`).
+
+```bash
+uv sync --extra dev                # library + tests + ruff
+```
+
+| Extra | Adds | Needed for |
+|---|---|---|
+| `dev` | pytest, ruff, pre-commit | development |
+| `notebooks` | matplotlib, jupyter tooling | backbone notebooks and `hale-vlm-films` |
+| `ray`, `webdataset`, `distributed` | Ray Train, WebDataset shards | `train.ray.enabled`, `data.webdataset.enabled` |
+| `deploy` | onnx, onnxruntime, safetensors | `hale-vlm-deploy` (offline ONNX route) |
+| `deploy-nvidia`, `deploy-apple`, `deploy-amd`, `deploy-qualcomm` | vendor SDKs | TensorRT, MLX, MIGraphX / Ryzen AI, Qualcomm AI Hub |
+
+The package imports without any extra: optional dependencies are imported lazily where used.
+
+## Quick start
+
+```python
+from hale_vlm.config import load_vlm_config
+from hale_vlm.models import build_vlm
+
+cfg = load_vlm_config("configs/base.yaml", ["model.llm.use_lora=true"])   # inherits + overrides
+model = build_vlm(cfg)                                                      # downloads weights
+```
+
+```bash
+hale-vlm-train configs/overfit.yaml --cfg-options train.steps=20     # smoke test
+hale-vlm-chat configs/base.yaml --image cat.jpg --prompt "What is in this image?"
+pytest -q                                                            # 150+ tests, no network/GPU
+```
+
+Configs inherit with `inherits: base.yaml` (or `_base_`), deep-merge over the base, and accept
+dotted `--cfg-options key=value` overrides. Library errors derive from
+`hale_vlm.exceptions.HaleVLMError`. Architecture, class and sequence diagrams are in
+[docs/architecture.md](docs/architecture.md).
 
 ## Scaling out: Ray Train + WebDataset
 

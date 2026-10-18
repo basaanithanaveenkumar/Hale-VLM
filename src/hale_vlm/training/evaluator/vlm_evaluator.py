@@ -13,6 +13,15 @@ class VLMEvaluator:
     """
 
     def run(self, model, loader) -> dict[str, float]:
+        """Mean validation loss over ``loader``.
+
+        Args:
+            model: the VLM (put in eval mode).
+            loader: validation :class:`DataLoader` yielding the training batch keys.
+
+        Returns:
+            ``{"loss": mean_loss}`` over the loader.
+        """
         model.eval()
         losses: list[float] = []
         with torch.no_grad():

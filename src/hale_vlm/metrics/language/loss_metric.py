@@ -33,6 +33,7 @@ class LossMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._total: float = 0.0
         self._count: int = 0
 
@@ -42,6 +43,11 @@ class LossMetric(VLMMetricBase):
         self._count += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         mean = self._total / max(self._count, 1)
         try:
             ppl = math.exp(mean)

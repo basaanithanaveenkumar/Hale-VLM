@@ -40,6 +40,7 @@ class CIDErMetric(VLMMetricBase):
 
     def reset(self) -> None:
         # Each entry: (hypothesis tokens, list of reference token lists)
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._corpus: list[tuple[list[str], list[list[str]]]] = []
 
     def update(  # type: ignore[override]
@@ -69,6 +70,11 @@ class CIDErMetric(VLMMetricBase):
         return weighted
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         if not self._corpus:
             return {"cider": 0.0}
 

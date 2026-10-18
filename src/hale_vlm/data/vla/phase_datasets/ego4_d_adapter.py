@@ -1,4 +1,4 @@
-"""Ego4DAdapter: Ego4DAdapter."""
+"""Registry adapter for the ``ego4d`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,17 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("ego4d")
 class Ego4DAdapter(VLADataAdapter):
+    """Registry adapter for ``ego4d``.
+
+    Source: Hub dataset ``facebook/ego4d``.
+
+    Ego4D — 3,600 hours of first-person video from 931 participants across 74 worldwide
+    scenarios. Low-cost VLA pretraining source; human-to-robot transfer via diverse egocentric
+    observations.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="ego4d",
         hf_path="facebook/ego4d",

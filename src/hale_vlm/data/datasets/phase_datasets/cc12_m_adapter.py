@@ -1,4 +1,4 @@
-"""CC12MAdapter: CC12MAdapter."""
+"""Registry adapter for the ``cc12m`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("cc12m")
 class CC12MAdapter(VLMDataAdapter):
+    """Registry adapter for ``cc12m``.
+
+    Source: Hub dataset ``pixparse/cc12m-wds``.
+
+    Conceptual Captions 12M — ~12M image-text pairs.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="cc12m",
         hf_path="pixparse/cc12m-wds",

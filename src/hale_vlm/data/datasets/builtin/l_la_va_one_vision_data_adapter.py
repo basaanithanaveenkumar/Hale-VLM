@@ -1,4 +1,4 @@
-"""LLaVAOneVisionDataAdapter: LLaVAOneVisionDataAdapter."""
+"""Registry adapter for the ``llava-onevision-data`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VisionCate
 
 @register_dataset("llava-onevision-data")
 class LLaVAOneVisionDataAdapter(VLMDataAdapter):
+    """Registry adapter for ``llava-onevision-data``.
+
+    Source: Hub dataset ``lmms-lab/LLaVA-OneVision-Data``.
+
+    LLaVA-OneVision image + instruction mix.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="llava-onevision-data",
         hf_path="lmms-lab/LLaVA-OneVision-Data",

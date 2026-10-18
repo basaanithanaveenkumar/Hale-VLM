@@ -1,4 +1,4 @@
-"""LLaVAPlusAdapter: LLaVAPlusAdapter."""
+"""Registry adapter for the ``llava-plus`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("llava-plus")
 class LLaVAPlusAdapter(VLMDataAdapter):
+    """Registry adapter for ``llava-plus``.
+
+    Source: Hub dataset ``zhaohengyuan1/llava_plus_stage2``.
+
+    LLaVA-Plus skill-augmented instruction-following data.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="llava-plus",
         hf_path="zhaohengyuan1/llava_plus_stage2",

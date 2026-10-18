@@ -5,11 +5,14 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
+from hale_vlm.config.sections.vision import VisionConfig
 from hale_vlm.exceptions import VLMInputError
+from hale_vlm.vision.connectors.registry import register_vision_connector
 
 from .gated_cross_attention_block import GatedCrossAttentionBlock
 
 
+@register_vision_connector("gated_cross_attention")
 class GatedCrossAttentionProjector(nn.Module):
     """Learned latents + gated cross-attention blocks, projected to the LLM hidden size.
 
@@ -24,6 +27,30 @@ class GatedCrossAttentionProjector(nn.Module):
         dropout: dropout inside attention and the FFN.
         gate_init: initial value of every gate before ``tanh`` (0 = Flamingo identity start).
     """
+
+    @classmethod
+    def from_config(
+        cls, vision_dim: int, llm_dim: int, cfg: VisionConfig
+    ) -> GatedCrossAttentionProjector:
+        """Build from the ``model.vision.gated_cross_attention`` section.
+
+        Args:
+            vision_dim: channel size of the vision encoder tokens.
+            llm_dim: hidden size of the language model.
+            cfg: the vision config whose ``gated_cross_attention`` section holds the settings.
+        """
+        g = cfg.gated_cross_attention
+        return cls(
+            vision_dim,
+            llm_dim,
+            num_latents=g.num_latents,
+            hidden_dim=g.hidden_dim,
+            num_layers=g.num_layers,
+            num_heads=g.num_heads,
+            ffn_mult=g.ffn_mult,
+            dropout=g.dropout,
+            gate_init=g.gate_init,
+        )
 
     def __init__(
         self,
@@ -62,6 +89,14 @@ class GatedCrossAttentionProjector(nn.Module):
         return self.num_latents
 
     def forward(self, vision_features: torch.Tensor) -> torch.Tensor:
+        """Resample vision features into a fixed number of LLM tokens.
+
+        Args:
+            vision_features: ``[B, N, D_vision]``.
+
+        Returns:
+            ``[B, num_tokens, D_llm]``.
+        """
         memory = self.memory_norm(vision_features)
         x = self.latents.expand(vision_features.shape[0], -1, -1).to(memory.dtype)
         for block in self.blocks:

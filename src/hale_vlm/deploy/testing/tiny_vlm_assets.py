@@ -61,10 +61,12 @@ class TinyVLMAssets:
 
     @property
     def vision_dir(self) -> Path:
+        """Directory of the tiny random SigLIP checkpoint."""
         return self.root / "vision"
 
     @property
     def llm_dir(self) -> Path:
+        """Directory of the tiny random LLM checkpoint and its tokenizer."""
         return self.root / "llm"
 
     def ensure(self) -> TinyVLMAssets:

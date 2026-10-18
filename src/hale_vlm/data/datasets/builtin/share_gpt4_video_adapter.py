@@ -1,4 +1,4 @@
-"""ShareGPT4VideoAdapter: ShareGPT4VideoAdapter."""
+"""Registry adapter for the ``sharegpt4video`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("sharegpt4video")
 class ShareGPT4VideoAdapter(VideoDatasetAdapter):
+    """Registry adapter for ``sharegpt4video``.
+
+    Source: Hub dataset ``ShareGPT4Video/ShareGPT4Video``.
+
+    ShareGPT4Video GPT-4 annotated video instructions.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="sharegpt4video",
         hf_path="ShareGPT4Video/ShareGPT4Video",

@@ -17,7 +17,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         BackboneFilmRenderer(args.out).render(args.names or None)
     except KeyError as err:
-        print(err, file=sys.stderr)
+        # A usage error is the CLI's user-facing output (like argparse's), not a log record.
+        sys.stderr.write(f"{err}\n")
         return 2
     return 0
 

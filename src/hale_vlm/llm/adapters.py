@@ -63,6 +63,7 @@ def configure_llm_trainability(model: nn.Module, cfg: LLMConfig) -> nn.Module:
 
 
 def iter_trainable_parameters(*modules: nn.Module) -> Iterator[nn.Parameter]:
+    """Yield every parameter with ``requires_grad`` across ``modules``."""
     for module in modules:
         for param in module.parameters():
             if param.requires_grad:
@@ -70,6 +71,11 @@ def iter_trainable_parameters(*modules: nn.Module) -> Iterator[nn.Parameter]:
 
 
 def count_parameters(*modules: nn.Module) -> tuple[int, int]:
+    """Count parameters across ``modules``.
+
+    Returns:
+        ``(trainable, total)`` element counts.
+    """
     trainable = 0
     total = 0
     for module in modules:

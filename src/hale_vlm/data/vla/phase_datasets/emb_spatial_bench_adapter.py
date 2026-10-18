@@ -1,4 +1,4 @@
-"""EmbSpatialBenchAdapter: EmbSpatialBenchAdapter."""
+"""Registry adapter for the ``embspatial-bench`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("embspatial-bench")
 class EmbSpatialBenchAdapter(VLADataAdapter):
+    """Registry adapter for ``embspatial-bench``.
+
+    Source: Hub dataset ``EmbSpatial/EmbSpatial-Bench``.
+
+    EmbSpatial-Bench — embodied spatial understanding VQA. Tests relative positions, distances,
+    directions in 3D scene context. Used as mid-train alignment data (EmbodiedMidtrain 2026).
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="embspatial-bench",
         hf_path="EmbSpatial/EmbSpatial-Bench",

@@ -1,4 +1,4 @@
-"""SEEDBenchAdapter: SEEDBenchAdapter."""
+"""Registry adapter for the ``seed-bench`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("seed-bench")
 class SEEDBenchAdapter(VLMDataAdapter):
+    """Registry adapter for ``seed-bench``.
+
+    Source: Hub dataset ``AILab-CVC/SEED-Bench``.
+
+    SEED-Bench — 19K MCQ across 12 evaluation dimensions.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="seed-bench",
         hf_path="AILab-CVC/SEED-Bench",

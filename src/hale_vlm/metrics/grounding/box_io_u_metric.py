@@ -41,6 +41,7 @@ class BoxIoUMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._iou_sum: float = 0.0
         self._count: int = 0
         self._thresh_correct: dict[float, int] = {t: 0 for t in self.thresholds}
@@ -65,6 +66,11 @@ class BoxIoUMetric(VLMMetricBase):
                 self._thresh_correct[t] += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         n = max(self._count, 1)
         result: dict[str, float] = {"mean_iou": self._iou_sum / n}
         for t in self.thresholds:

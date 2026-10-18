@@ -35,6 +35,15 @@ class GatedCrossAttentionBlock(nn.Module):
         self.ffn_gate = nn.Parameter(torch.full((1,), float(gate_init)))
 
     def forward(self, x: torch.Tensor, memory: torch.Tensor) -> torch.Tensor:
+        """Gated cross-attention then gated MLP, both residual.
+
+        Args:
+            x: queries ``[B, Q, H]``.
+            memory: vision features ``[B, N, H]``.
+
+        Returns:
+            Updated queries ``[B, Q, H]``.
+        """
         h = self.attn_norm(x)
         x = x + torch.tanh(self.attn_gate) * self.attn(h, memory, memory, need_weights=False)[0]
         return x + torch.tanh(self.ffn_gate) * self.ffn(self.ffn_norm(x))

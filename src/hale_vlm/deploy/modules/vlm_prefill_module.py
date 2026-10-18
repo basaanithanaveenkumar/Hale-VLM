@@ -33,6 +33,16 @@ class VLMPrefillModule(nn.Module):
     def forward(
         self, pixel_values: torch.Tensor, input_ids: torch.Tensor, attention_mask: torch.Tensor
     ) -> torch.Tensor:
+        """Whole-VLM prefill as a single graph (parity reference).
+
+        Args:
+            pixel_values: ``[B, 3, H, W]`` images.
+            input_ids: ``[B, S]`` prompt ids containing the image token.
+            attention_mask: ``[B, S]`` mask.
+
+        Returns:
+            Logits ``[B, S', V]`` over the spliced sequence.
+        """
         image = self.vision(pixel_values)
         batch, n = image.shape[0], image.shape[1]
         embeds = torch.cat([image, self.llm.embed_tokens(input_ids)], dim=1)

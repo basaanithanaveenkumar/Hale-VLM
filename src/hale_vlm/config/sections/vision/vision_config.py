@@ -1,6 +1,6 @@
 """VisionConfig: Vision tower and projector settings."""
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from hale_core.config.sections.common import StrictModel
 from pydantic import Field
@@ -8,6 +8,9 @@ from pydantic import Field
 from .gated_cross_attention_config import GatedCrossAttentionConfig
 from .local_backbone_config import LocalBackboneConfig
 from .q_former_config import QFormerConfig
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from torch import nn
 
 
 class VisionConfig(StrictModel):
@@ -43,7 +46,7 @@ class VisionConfig(StrictModel):
             return self.gated_cross_attention.num_latents
         return self.num_image_tokens
 
-    def build_vision_tower(self):
+    def build_vision_tower(self) -> "nn.Module":
         """Build and return the configured vision tower.
 
         For encoder in ("siglip", "clip") — returns the HuggingFace VisionTower.

@@ -41,6 +41,7 @@ class ActionTokenAccuracyMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._total_correct: int = 0
         self._total_tokens: int = 0
         self._exact_matches: int = 0
@@ -82,6 +83,11 @@ class ActionTokenAccuracyMetric(VLMMetricBase):
         self._seq_count += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         result: dict[str, float] = {
             "action_token_acc": self._total_correct / max(self._total_tokens, 1),
             "action_sequence_exact_match": self._exact_matches / max(self._seq_count, 1),

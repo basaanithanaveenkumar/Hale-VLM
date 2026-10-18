@@ -51,7 +51,8 @@ ids from them). Training, evaluation and text-only chat work.
 
 | Field | Default | Meaning |
 |---|---|---|
-| `source` | `huggingface` | `huggingface`, `overfit`, `registry`, `vla_registry`, `mixed_registry` |
+| `source` | `huggingface` | `huggingface`, `overfit`, `registry`, `phase_registry`, `vla_registry`, `mixed_registry` |
+| `registry_phase` | none | `pretrain`, `mid_train`, `post_train`; required by `source: phase_registry` |
 | `registry_stage` | `all` | `all`, `vision`, `video`, `context` |
 | `registry_datasets` | all 19 | explicit list |
 | `vla_registry_stage` | `all` | `all`, `community`, `simulation`, `real_world` |
@@ -64,3 +65,13 @@ ids from them). Training, evaluation and text-only chat work.
 
 `steps: 1000`, `batch_size: 2`, `lr: 2.0e-5`, `grad_clip: 1.0`, `resume: false`,
 `checkpoint_every_epoch: true`.
+
+## Loading and overrides
+
+`load_vlm_config(path, overrides=())` resolves `inherits:` / `_base_` chains (several bases allowed,
+cycles raise `ConfigError`), deep-merges child over base (`_delete_: true` replaces a mapping),
+applies `key.path=value` overrides (the CLI's `--cfg-options`) and validates the result into
+`VLMRunConfig`. Unknown keys are rejected, so a misspelt option fails at load time.
+
+Learning-rate warmup lives in `train.scheduler` (`type: warmup_cosine`, `warmup_steps: N`), and
+`freeze_llm` / `freeze_encoder` belong to `model.llm` / `model.vision`.

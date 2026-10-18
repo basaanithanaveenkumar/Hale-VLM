@@ -32,6 +32,15 @@ PHASE_DATASETS = NamedRegistry("vlm_phase_dataset")
 
 
 def register_phase_dataset(name: str) -> Callable[[type[T]], type[T]]:
+    """Class decorator registering a phase-aware VLM adapter under ``name``.
+
+    Args:
+        name: registry key (also set as ``cls.registry_name``).
+
+    Raises:
+        RegistryError: if ``name`` is already registered.
+    """
+
     def deco(cls: type[T]) -> type[T]:
         PHASE_DATASETS.add(name, cls)
         cls.registry_name = name  # type: ignore[attr-defined]
@@ -41,10 +50,24 @@ def register_phase_dataset(name: str) -> Callable[[type[T]], type[T]]:
 
 
 def get_phase_dataset(name: str) -> type[VLMDataAdapter]:
+    """Return the adapter class registered as ``name``.
+
+    Raises:
+        RegistryError: for an unknown name (the message lists the registered ones).
+    """
     return PHASE_DATASETS.get(name)
 
 
 def build_phase_dataset(name: str, **kwargs) -> VLMDataAdapter:
+    """Instantiate the adapter registered as ``name``.
+
+    Args:
+        name: registry key.
+        **kwargs: forwarded to the adapter constructor.
+
+    Raises:
+        DatasetUnavailableError: if the adapter is disabled.
+    """
     adapter = get_phase_dataset(name)(**kwargs)
     if not adapter.spec.enabled:
         raise DatasetUnavailableError(
@@ -59,6 +82,15 @@ def list_phase_datasets(
     phase: TrainingPhase | None = None,
     enabled_only: bool = True,
 ) -> list[str]:
+    """Names of registered phase datasets, sorted.
+
+    Args:
+        phase: keep only datasets of this training phase.
+        enabled_only: drop adapters whose spec is disabled.
+
+    Returns:
+        Registry keys; importing this lists triggers adapter registration.
+    """
     import hale_vlm.data.datasets.phase_datasets  # noqa: F401
 
     names: list[str] = []

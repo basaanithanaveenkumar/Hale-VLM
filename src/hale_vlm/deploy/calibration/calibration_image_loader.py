@@ -32,9 +32,18 @@ class CalibrationImageLoader:
             raise ConfigError(f"calibration image folder not found: {self.directory}")
 
     def files(self) -> list[Path]:
+        """Sorted image files found in the calibration folder."""
         return sorted(p for p in self.directory.rglob("*") if p.suffix.lower() in IMAGE_SUFFIXES)
 
     def batches(self, num_batches: int) -> Iterator[torch.Tensor]:
+        """Yield normalised image batches.
+
+        Args:
+            num_batches: number of batches to produce (capped by the number of files available).
+
+        Yields:
+            ``[B, 3, H, W]`` float tensors.
+        """
         from PIL import Image
         from torchvision import transforms
 

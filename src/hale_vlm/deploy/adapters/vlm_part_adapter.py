@@ -6,7 +6,7 @@ from abc import abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import torch
 from hale_core.deploy.adapters.model_adapter import ModelAdapter
@@ -15,6 +15,9 @@ from loguru import logger
 from torch import nn
 
 from hale_vlm.deploy.calibration.calibration_image_loader import CalibrationImageLoader
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from hale_vlm.config import VLMRunConfig
 
 #: Prompts used to build realistic text-side calibration inputs.
 CALIBRATION_PROMPTS = (
@@ -65,9 +68,11 @@ class VLMPartAdapter(ModelAdapter):
 
     # ------------------------------------------------------------------ the VLM
     @cached_property
-    def run_cfg(self):
+    def run_cfg(self) -> VLMRunConfig:
+        """The validated :class:`VLMRunConfig` (YAML + tiny-asset and run overrides), built once."""
         from hale_core.config.load import load_yaml_tree
         from hale_core.config.merge import deep_merge
+        from pydantic import ValidationError
 
         from hale_vlm.config import VLMRunConfig
 
@@ -82,11 +87,12 @@ class VLMPartAdapter(ModelAdapter):
         raw = deep_merge(raw, self.run_overrides)
         try:
             return VLMRunConfig.model_validate(raw)
-        except Exception as exc:  # pydantic ValidationError: report as a config problem
+        except ValidationError as exc:  # report schema violations as a config problem
             raise ConfigError(f"invalid VLM run config {path}: {exc}") from exc
 
     @cached_property
     def vlm(self) -> nn.Module:
+        """The float32 evaluation-mode :class:`HaleVLM` shared by every part, built once."""
         from hale_vlm.models.vlm import HaleVLM
 
         model = HaleVLM.from_config(self.run_cfg).float().eval()
@@ -106,22 +112,27 @@ class VLMPartAdapter(ModelAdapter):
 
     @property
     def image_size(self) -> int:
+        """Square input resolution of the vision tower."""
         return int(self.run_cfg.model.vision.image_size)
 
     @property
     def hidden_size(self) -> int:
+        """Hidden size of the language model."""
         return int(self.vlm.llm.hidden_size)
 
     @property
     def vocab_size(self) -> int:
+        """Vocabulary size of the language model."""
         return int(self.vlm.llm.vocab_size)
 
     @property
     def max_length(self) -> int:
+        """Maximum sequence length of the model config."""
         return int(self.run_cfg.model.max_length)
 
     # ------------------------------------------------------------------ ModelAdapter
     def build_model(self) -> nn.Module:
+        """Build the part module to export (loads the VLM, then calls :meth:`build_part`)."""
         return self.build_part(self.vlm)
 
     @abstractmethod
@@ -133,15 +144,38 @@ class VLMPartAdapter(ModelAdapter):
         super().load_checkpoint(self.vlm, path)
 
     def forward_for_export(self, model: nn.Module, inputs: dict[str, torch.Tensor]) -> Any:
+        """Run the part on keyword tensors (the export graph's calling convention).
+
+        Args:
+            model: the module returned by :meth:`build_model`.
+            inputs: tensors keyed by the signature's input names.
+        """
         return model(*inputs.values())
 
     # ------------------------------------------------------------------ calibration helpers
     def calibration_images_batches(self, num_batches: int) -> Iterator[torch.Tensor] | None:
+        """Image batches from the configured calibration folder.
+
+        Args:
+            num_batches: number of batches to produce.
+
+        Returns:
+            An iterator of ``[B, 3, H, W]`` tensors, or ``None`` when no folder is configured.
+        """
         if not self.calibration_images:
             return None
         return CalibrationImageLoader(self.calibration_images, self.image_size).batches(num_batches)
 
     def tokenize(self, prompts: Sequence[str], length: int) -> tuple[torch.Tensor, torch.Tensor]:
+        """Tokenise prompts to fixed-length ids and mask.
+
+        Args:
+            prompts: texts to encode.
+            length: padded / truncated sequence length.
+
+        Returns:
+            ``(input_ids, attention_mask)`` of shape ``[len(prompts), length]``.
+        """
         tokens = self.vlm.tokenizer(
             list(prompts),
             padding="max_length",

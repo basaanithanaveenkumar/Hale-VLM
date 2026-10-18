@@ -1,4 +1,4 @@
-"""ScienceQAAdapter: ScienceQAAdapter."""
+"""Registry adapter for the ``scienceqa`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("scienceqa")
 class ScienceQAAdapter(VLMDataAdapter):
+    """Registry adapter for ``scienceqa``.
+
+    Source: Hub dataset ``derek-thomas/ScienceQA``.
+
+    ScienceQA — 21K multimodal science MCQ.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="scienceqa",
         hf_path="derek-thomas/ScienceQA",

@@ -25,6 +25,7 @@ class YesNoAccuracyMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._correct: int = 0
         self._total: int = 0
         self._yes_count: int = 0
@@ -58,6 +59,11 @@ class YesNoAccuracyMetric(VLMMetricBase):
             self._no_count += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         return {
             "yes_no_acc": self._correct / max(self._total, 1),
             "yes_count": float(self._yes_count),

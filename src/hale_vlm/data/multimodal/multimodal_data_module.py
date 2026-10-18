@@ -141,6 +141,7 @@ class MultimodalDataModule:
 
     # ------------------------------------------------------------------ HaleBlocks DataModule
     def train_loader(self) -> DataLoader:
+        """Build the training :class:`DataLoader` (registry stream or captioned HF dataset)."""
         if self._train is None:
             self._train = self._prepare(
                 self._build_train_dataset, self.cfg.data.train_split, training=True
@@ -149,6 +150,11 @@ class MultimodalDataModule:
         return self._loader(self._train, shuffle=not self._uses_registry())
 
     def val_loader(self, train_loader: DataLoader | None = None) -> DataLoader:
+        """Build the validation :class:`DataLoader`.
+
+        Args:
+            train_loader: the training loader, reused for its collate function when given.
+        """
         del train_loader
         if self._val is None:
             self._val = self._prepare(
@@ -157,5 +163,10 @@ class MultimodalDataModule:
         return self._loader(self._val, shuffle=False)
 
     def viz_prompt(self, step: int) -> str:
+        """Return the text prompt used for the visualisation sample at training ``step``.
+
+        Args:
+            step: current training step.
+        """
         del step
         return f"User: {self.cfg.model.llm.image_token}\nDescribe the image.\nAssistant:"

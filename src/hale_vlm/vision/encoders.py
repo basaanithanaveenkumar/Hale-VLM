@@ -30,9 +30,18 @@ class VisionTower(nn.Module):
 
     @property
     def hidden_size(self) -> int:
+        """Feature size of the vision backbone."""
         return int(self.model.config.hidden_size)
 
     def forward(self, pixel_values: torch.Tensor) -> torch.Tensor:
+        """Extract patch features.
+
+        Args:
+            pixel_values: ``[B, 3, H, W]`` normalised images.
+
+        Returns:
+            ``[B, N, D_vision]`` patch features.
+        """
         if self.cfg.freeze_encoder:
             with torch.no_grad():
                 outputs = self.model(pixel_values=pixel_values)
@@ -42,4 +51,9 @@ class VisionTower(nn.Module):
 
 
 def build_vision_tower(cfg: VisionConfig) -> VisionTower:
+    """Build a Hugging Face vision tower from its config (Factory).
+
+    Args:
+        cfg: the ``model.vision`` section.
+    """
     return VisionTower(cfg)

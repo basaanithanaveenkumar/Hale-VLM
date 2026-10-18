@@ -1,8 +1,9 @@
-"""Interactive image+text chat CLI."""
+"""Image+text chat CLI (``hale-vlm-chat``)."""
 
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import torch
@@ -14,6 +15,7 @@ from hale_vlm.models.vlm import build_vlm
 
 
 def _load_image(path: Path, image_size: int) -> torch.Tensor:
+    """Load ``path`` as a normalised ``[1, 3, image_size, image_size]`` tensor."""
     transform = transforms.Compose(
         [
             transforms.Resize((image_size, image_size)),
@@ -26,14 +28,26 @@ def _load_image(path: Path, image_size: int) -> torch.Tensor:
 
 
 def main() -> None:
+    """Answer one prompt about one image with the configured VLM and print the reply.
+
+    Example:
+        ``hale-vlm-chat configs/base.yaml --image cat.png --prompt "What is this?"``
+    """
     parser = argparse.ArgumentParser(description="Chat with a Hale-VLM model")
     parser.add_argument("config", type=Path, help="Path to YAML config")
     parser.add_argument("--image", type=Path, required=True, help="Input image path")
     parser.add_argument("--prompt", type=str, default="Describe the image in detail.")
     parser.add_argument("--max-new-tokens", type=int, default=256)
+    parser.add_argument(
+        "--cfg-options",
+        nargs="*",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Dotted config overrides, e.g. model.llm.dtype=float32",
+    )
     args = parser.parse_args()
 
-    cfg = load_vlm_config(str(args.config))
+    cfg = load_vlm_config(args.config, args.cfg_options)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = build_vlm(cfg).to(device)
@@ -63,7 +77,8 @@ def main() -> None:
             temperature=0.7,
         )
 
-    print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+    # The reply is the CLI's product, so it goes to stdout; diagnostics go through loguru.
+    sys.stdout.write(tokenizer.decode(outputs[0], skip_special_tokens=True) + "\n")
 
 
 if __name__ == "__main__":

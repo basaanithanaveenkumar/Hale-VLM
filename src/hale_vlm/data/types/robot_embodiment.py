@@ -12,4 +12,5 @@ class RobotEmbodiment(StrEnum):
     SO101 = "so101"
     PANDA = "panda"
     SAWYER = "sawyer"
+    HUMAN = "human"
     MIXED = "mixed"

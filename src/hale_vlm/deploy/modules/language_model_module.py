@@ -26,6 +26,15 @@ class LanguageModelModule(nn.Module):
         self.mode = mode
 
     def forward(self, inputs: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+        """Prefill logits.
+
+        Args:
+            inputs: merged embeddings ``[B, S, H]`` or token ids ``[B, S]`` (depends on the mode).
+            attention_mask: ``[B, S]`` mask.
+
+        Returns:
+            Logits ``[B, S, V]``.
+        """
         if self.mode == "ids":
             return self.llm(
                 input_ids=inputs, attention_mask=attention_mask, token_ids=inputs

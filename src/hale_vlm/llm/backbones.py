@@ -42,17 +42,28 @@ class LLMBackbone(nn.Module):
 
     @property
     def tokenizer(self) -> Any:
+        """The backbone's tokenizer (special tokens already added)."""
         return self.core.tokenizer
 
     @property
     def hidden_size(self) -> int:
+        """Hidden size of the language model."""
         return self.core.hidden_size
 
     @property
     def vocab_size(self) -> int:
+        """Vocabulary size including added special tokens."""
         return self.core.vocab_size
 
     def embed_tokens(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """Embed token ids.
+
+        Args:
+            input_ids: ``[B, S]`` token ids.
+
+        Returns:
+            Embeddings ``[B, S, H]``.
+        """
         return self.core.embed_tokens(input_ids)
 
     def forward(
@@ -99,4 +110,13 @@ def resolve_llm_config(cfg: LLMConfig) -> LLMConfig:
 
 
 def build_llm_backbone(cfg: LLMConfig, special_tokens: Sequence[str] = ()) -> LLMBackbone:
+    """Build the configured LLM backbone through the HaleBlocks registry (Factory).
+
+    Args:
+        cfg: the ``model.llm`` section.
+        special_tokens: extra tokens to add (for example the image token).
+
+    Returns:
+        The wrapped, fine-tuning-policy-applied backbone.
+    """
     return LLMBackbone(resolve_llm_config(cfg), special_tokens)

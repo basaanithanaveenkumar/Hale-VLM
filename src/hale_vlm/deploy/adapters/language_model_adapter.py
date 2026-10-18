@@ -40,9 +40,18 @@ class LanguageModelAdapter(VLMPartAdapter):
         self.mode = mode
 
     def build_part(self, vlm: nn.Module) -> nn.Module:
+        """Wrap the trained VLM's sub-modules in the exportable part module.
+
+        Args:
+            vlm: the built :class:`HaleVLM`.
+
+        Returns:
+            The ``nn.Module`` that is traced / exported.
+        """
         return LanguageModelModule(vlm.llm, self.mode)
 
     def default_signature(self) -> IOSignature:
+        """The part's input/output tensor signature (names, dtypes, dynamic axes)."""
         first = (
             {
                 "name": "inputs_embeds",
@@ -95,6 +104,14 @@ class LanguageModelAdapter(VLMPartAdapter):
         return hf_model, self.vlm.tokenizer
 
     def calibration_batches(self, num_batches: int) -> Iterator[dict[str, torch.Tensor]] | None:
+        """Calibration inputs for quantisation.
+
+        Args:
+            num_batches: number of batches to produce.
+
+        Returns:
+            An iterator of input dicts, or ``None`` when no calibration data is configured.
+        """
         images = self.calibration_images_batches(num_batches)
         if images is None:
             return None

@@ -5,11 +5,14 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
+from hale_vlm.config.sections.vision import VisionConfig
 from hale_vlm.exceptions import VLMInputError
+from hale_vlm.vision.connectors.registry import register_vision_connector
 
 from .q_former_layer import QFormerLayer
 
 
+@register_vision_connector("qformer")
 class QFormer(nn.Module):
     """Learned-query transformer that maps vision features to ``num_queries`` LLM tokens.
 
@@ -25,6 +28,28 @@ class QFormer(nn.Module):
         ffn_mult: feed-forward expansion factor.
         dropout: dropout inside attention and the FFN.
     """
+
+    @classmethod
+    def from_config(cls, vision_dim: int, llm_dim: int, cfg: VisionConfig) -> QFormer:
+        """Build from the ``model.vision.qformer`` section.
+
+        Args:
+            vision_dim: channel size of the vision encoder tokens.
+            llm_dim: hidden size of the language model.
+            cfg: the vision config whose ``qformer`` section holds the hyper-parameters.
+        """
+        q = cfg.qformer
+        return cls(
+            vision_dim,
+            llm_dim,
+            num_queries=q.num_queries,
+            hidden_dim=q.hidden_dim,
+            num_layers=q.num_layers,
+            num_heads=q.num_heads,
+            cross_attention_freq=q.cross_attention_freq,
+            ffn_mult=q.ffn_mult,
+            dropout=q.dropout,
+        )
 
     def __init__(
         self,
@@ -70,6 +95,14 @@ class QFormer(nn.Module):
         return self.num_queries
 
     def forward(self, vision_features: torch.Tensor) -> torch.Tensor:
+        """Distil vision features into learned query tokens.
+
+        Args:
+            vision_features: ``[B, N, D_vision]``.
+
+        Returns:
+            ``[B, num_latents, D_llm]``.
+        """
         memory = self.memory_norm(vision_features)
         queries = self.query_tokens.expand(vision_features.shape[0], -1, -1)
         queries = queries.to(memory.dtype)

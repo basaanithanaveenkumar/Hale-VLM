@@ -1,4 +1,4 @@
-"""WITAdapter: WITAdapter."""
+"""Registry adapter for the ``wit`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("wit")
 class WITAdapter(VLMDataAdapter):
+    """Registry adapter for ``wit``.
+
+    Source: Hub dataset ``google/wit``.
+
+    Wikipedia-based Image Text (WIT) — 37.6M pairs.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="wit",
         hf_path="google/wit",

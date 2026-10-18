@@ -1,4 +1,4 @@
-"""AllaVAVFLANAdapter: AllaVAVFLANAdapter."""
+"""Registry adapter for the ``allava-vflan`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("allava-vflan")
 class AllaVAVFLANAdapter(VLMDataAdapter):
+    """Registry adapter for ``allava-vflan``.
+
+    Source: Hub dataset ``FreedomIntelligence/ALLaVA-4V``.
+
+    ALLaVA VFLAN ~1.5M reason-annotated visual QA.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="allava-vflan",
         hf_path="FreedomIntelligence/ALLaVA-4V",

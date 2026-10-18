@@ -1,4 +1,4 @@
-"""LLaVAVideo178KAdapter: LLaVAVideo178KAdapter."""
+"""Registry adapter for the ``llava-video-178k`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("llava-video-178k")
 class LLaVAVideo178KAdapter(VideoDatasetAdapter):
+    """Registry adapter for ``llava-video-178k``.
+
+    Source: Hub dataset ``lmms-lab/LLaVA-Video-178K``.
+
+    LLaVA-Video-178K captions and open-ended video QA.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="llava-video-178k",
         hf_path="lmms-lab/LLaVA-Video-178K",

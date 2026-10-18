@@ -1,4 +1,4 @@
-"""MovieChatAdapter: MovieChatAdapter."""
+"""Registry adapter for the ``moviechat`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("moviechat")
 class MovieChatAdapter(VideoDatasetAdapter):
+    """Registry adapter for ``moviechat``.
+
+    Source: Hub dataset ``Enxin/MovieChat-1K_train``.
+
+    MovieChat long narrative video comprehension.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="moviechat",
         hf_path="Enxin/MovieChat-1K_train",

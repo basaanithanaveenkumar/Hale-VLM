@@ -1,4 +1,4 @@
-"""M4InstructDataAdapter: M4InstructDataAdapter."""
+"""Registry adapter for the ``m4-instruct-data`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("m4-instruct-data")
 class M4InstructDataAdapter(VLMDataAdapter):
+    """Registry adapter for ``m4-instruct-data``.
+
+    Source: Hub dataset ``lmms-lab/M4-Instruct-Data``.
+
+    M4 multi-image instruction tuning.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="m4-instruct-data",
         hf_path="lmms-lab/M4-Instruct-Data",

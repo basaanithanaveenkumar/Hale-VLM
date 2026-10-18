@@ -1,4 +1,4 @@
-"""RedCapsAdapter: RedCapsAdapter."""
+"""Registry adapter for the ``redcaps`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("redcaps")
 class RedCapsAdapter(VLMDataAdapter):
+    """Registry adapter for ``redcaps``.
+
+    Source: Hub dataset ``red_caps``.
+
+    RedCaps — 12M human-written image-text pairs from Reddit.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="redcaps",
         hf_path="red_caps",

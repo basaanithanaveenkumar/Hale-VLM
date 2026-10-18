@@ -1,4 +1,4 @@
-"""LiberoPretrainAdapter: LiberoPretrainAdapter."""
+"""Registry adapter for the ``libero-pretrain`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,17 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("libero-pretrain")
 class LiberoPretrainAdapter(VLADataAdapter):
+    """Registry adapter for ``libero-pretrain``.
+
+    Source: Hub dataset ``HuggingFaceVLA/libero``.
+
+    LIBERO (HuggingFaceVLA edition) — 130+ tasks, 5K+ episodes on Franka. Officially integrated
+    into LeRobot v0.4.0. Used for instruction-following and multi-task generalisation
+    pretraining.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="libero-pretrain",
         hf_path="HuggingFaceVLA/libero",

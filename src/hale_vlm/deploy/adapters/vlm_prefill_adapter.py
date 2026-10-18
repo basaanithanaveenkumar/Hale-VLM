@@ -24,12 +24,21 @@ class VLMPrefillAdapter(VLMPartAdapter):
     """
 
     def build_part(self, vlm: nn.Module) -> nn.Module:
+        """Wrap the trained VLM's sub-modules in the exportable part module.
+
+        Args:
+            vlm: the built :class:`HaleVLM`.
+
+        Returns:
+            The ``nn.Module`` that is traced / exported.
+        """
         vision = VisionEncoderModule(
             vlm.vision, vlm.projector, self.run_cfg.model.vision.resolved_num_image_tokens()
         )
         return VLMPrefillModule(vision, vlm.llm, vlm.image_token_id)
 
     def default_signature(self) -> IOSignature:
+        """The part's input/output tensor signature (names, dtypes, dynamic axes)."""
         size = self.image_size
         max_text = max(1, self.max_length - self.num_image_tokens)
         return IOSignature.from_config(
@@ -63,6 +72,14 @@ class VLMPrefillAdapter(VLMPartAdapter):
         )
 
     def calibration_batches(self, num_batches: int) -> Iterator[dict[str, torch.Tensor]] | None:
+        """Calibration inputs for quantisation.
+
+        Args:
+            num_batches: number of batches to produce.
+
+        Returns:
+            An iterator of input dicts, or ``None`` when no calibration data is configured.
+        """
         images = self.calibration_images_batches(num_batches)
         if images is None:
             return None

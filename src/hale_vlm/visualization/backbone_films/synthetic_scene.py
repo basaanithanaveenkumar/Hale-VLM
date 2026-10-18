@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    import numpy as np
+
 
 class SyntheticScene:
     """Draws a simple outdoor scene (sky, ground, sun, house) at any resolution.
@@ -11,7 +16,7 @@ class SyntheticScene:
     """
 
     @staticmethod
-    def render(height: int, width: int):
+    def render(height: int, width: int) -> np.ndarray:
         """Return a ``(height, width, 3)`` float array in ``[0, 1]``.
 
         Args:

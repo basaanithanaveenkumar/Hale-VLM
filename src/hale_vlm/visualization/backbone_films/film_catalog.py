@@ -26,6 +26,7 @@ class FilmCatalog:
     @staticmethod
     @register_film("qwen3_vl_pipeline")
     def qwen3_vl_pipeline() -> PipelineFilm:
+        """Film: Qwen3-VL end to end: image, ViT, patch merge, LLM."""
         return PipelineFilm(
             "Qwen3-VL backbone",
             [
@@ -68,11 +69,13 @@ class FilmCatalog:
     @staticmethod
     @register_film("qwen3_vl_dynamic_resolution")
     def qwen3_vl_dynamic_resolution() -> DynamicResolutionFilm:
+        """Film: Qwen3-VL native-resolution patching."""
         return DynamicResolutionFilm()
 
     @staticmethod
     @register_film("qwen3_vl_patch_merge")
     def qwen3_vl_patch_merge() -> SpaceToDepthFilm:
+        """Film: Qwen3-VL 2x2 patch merge (space-to-depth)."""
         mapping = MergeMappingProbe.qwen3_vl_merge(6, 8, merge=2)
         return SpaceToDepthFilm(
             "Qwen3-VL: 2×2 patch merge",
@@ -87,16 +90,19 @@ class FilmCatalog:
     @staticmethod
     @register_film("qwen3_vl_mrope")
     def qwen3_vl_mrope() -> MRoPEPositionFilm:
+        """Film: Qwen3-VL multimodal rotary positions (t, h, w)."""
         return MRoPEPositionFilm()
 
     @staticmethod
     @register_film("qwen3_vl_deepstack")
     def qwen3_vl_deepstack() -> DeepStackFilm:
+        """Film: Qwen3-VL DeepStack: ViT taps injected into early LLM layers."""
         return DeepStackFilm()
 
     @staticmethod
     @register_film("qwen3_vl_token_stream")
     def qwen3_vl_token_stream() -> TokenStreamFilm:
+        """Film: Qwen3-VL interleaved image/text token stream."""
         chips = [
             TokenChip("<|im_start|>", "special"),
             TokenChip("user"),
@@ -119,6 +125,7 @@ class FilmCatalog:
     @staticmethod
     @register_film("smolvlm_pipeline")
     def smolvlm_pipeline() -> PipelineFilm:
+        """Film: SmolVLM end to end: tiles, SigLIP, pixel shuffle, LLM."""
         return PipelineFilm(
             "SmolVLM backbone",
             [
@@ -151,11 +158,13 @@ class FilmCatalog:
     @staticmethod
     @register_film("smolvlm_image_tiling")
     def smolvlm_image_tiling() -> ImageTilingFilm:
+        """Film: SmolVLM image splitting into tiles plus a global view."""
         return ImageTilingFilm()
 
     @staticmethod
     @register_film("smolvlm_pixel_shuffle")
     def smolvlm_pixel_shuffle() -> SpaceToDepthFilm:
+        """Film: SmolVLM pixel shuffle (space-to-depth) token reduction."""
         mapping = MergeMappingProbe.smolvlm_pixel_shuffle(8, 4)
         return SpaceToDepthFilm(
             "SmolVLM: pixel shuffle (r = 4)",
@@ -170,6 +179,7 @@ class FilmCatalog:
     @staticmethod
     @register_film("smolvlm_token_stream")
     def smolvlm_token_stream() -> TokenStreamFilm:
+        """Film: SmolVLM interleaved image/text token stream."""
         chips = [
             TokenChip("<|im_start|>", "special"),
             TokenChip("User"),

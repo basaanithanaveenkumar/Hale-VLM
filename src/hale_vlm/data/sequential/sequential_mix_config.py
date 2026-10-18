@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 @dataclass
 class SequentialMixConfig:
+    """Settings of :class:`SequentialMultiDatasetStream`: datasets, caps, prefetch, frames."""
+
     dataset_names: Sequence[str]
     max_samples_per_dataset: int | None = None
     split: str = "train"

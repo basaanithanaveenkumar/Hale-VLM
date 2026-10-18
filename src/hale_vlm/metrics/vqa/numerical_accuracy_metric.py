@@ -31,6 +31,7 @@ class NumericalAccuracyMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._exact: int = 0
         self._within_tol: int = 0
         self._total: int = 0
@@ -55,6 +56,11 @@ class NumericalAccuracyMetric(VLMMetricBase):
             self._within_tol += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         n = max(self._total, 1)
         return {
             "num_exact": self._exact / n,

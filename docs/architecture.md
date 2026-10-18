@@ -203,3 +203,133 @@ flowchart LR
   LOGITS & LABELS --> CE --> TOTAL["total loss\n(backprop through LoRA + projector only)"]
   PRED --> CE
 ```
+
+---
+
+## 8. Package structure (class diagram)
+
+```mermaid
+classDiagram
+  class VLMRunConfig {
+    +VLMModelConfig model
+    +VLMDataConfig data
+  }
+  class HaleVLM {
+    +encode_images(pixel_values)
+    +merge_image_embeddings(...)
+    +forward(input_ids, pixel_values, labels)
+    +from_config(cfg)$
+  }
+  class VisionTower
+  class VisionProjector
+  class LLMBackbone
+  class VISION_CONNECTORS {
+    <<Registry>>
+    qformer
+    gated_cross_attention
+  }
+  class QFormer
+  class GatedCrossAttentionProjector
+  class VLMDataAdapter {
+    <<abstract>>
+    +open_stream()
+    +normalize(row)
+    +iter_samples()
+  }
+  class VLADataAdapter {
+    <<abstract>>
+  }
+  class DATASETS {
+    <<Registry>>
+  }
+  class PHASE_DATASETS {
+    <<Registry>>
+  }
+  class VLA_DATASETS {
+    <<Registry>>
+  }
+  class VLA_PHASE_DATASETS {
+    <<Registry>>
+  }
+  class VLMTrainer
+  class VLMMetricBase {
+    <<abstract>>
+    +reset()
+    +update()
+    +compute()
+  }
+
+  VLMRunConfig --> HaleVLM : from_config
+  HaleVLM *-- VisionTower
+  HaleVLM *-- VisionProjector
+  HaleVLM *-- LLMBackbone
+  VisionProjector ..> VISION_CONNECTORS : build_vision_connector
+  VISION_CONNECTORS o-- QFormer
+  VISION_CONNECTORS o-- GatedCrossAttentionProjector
+  DATASETS o-- VLMDataAdapter
+  PHASE_DATASETS o-- VLMDataAdapter
+  VLA_DATASETS o-- VLADataAdapter
+  VLA_PHASE_DATASETS o-- VLADataAdapter
+  VLMTrainer ..> HaleVLM : optimises trainable parameters
+  VLMTrainer ..> VLMMetricBase : evaluation
+```
+
+Registries are `hale_core` `NamedRegistry` instances (duplicate keys raise, unknown keys list the
+registered names). `get_dataset` and `get_vla_dataset` fall back from the SmolVLM / SmolVLA
+registries to the phase registries, so a config can name a dataset without knowing which holds it.
+
+## 9. Training run (sequence diagram)
+
+```mermaid
+sequenceDiagram
+  participant CLI as hale-vlm-train
+  participant CL as load_vlm_config
+  participant B as register_vlm_plugins
+  participant L as train_vlm (hale_core train)
+  participant DM as MultimodalDataModule
+  participant S as SequentialMultiDatasetStream
+  participant M as HaleVLM
+  participant T as VLMTrainer
+
+  CLI->>CL: path, --cfg-options
+  CL-->>CLI: VLMRunConfig (inherits + overrides, validated)
+  CLI->>L: cfg
+  L->>B: import registering modules
+  L->>M: build_vlm(cfg)
+  L->>DM: setup(cfg, tokenizer)
+  L->>T: fit()
+  loop every step
+    T->>DM: next batch
+    DM->>S: iterate datasets (prefetch next)
+    S-->>DM: VLMSample
+    DM-->>T: pixel_values, input_ids, labels
+    T->>M: forward -> loss
+    T->>T: backward on trainable parameters only
+  end
+```
+
+## 10. Error hierarchy
+
+```mermaid
+classDiagram
+  HaleCoreError <|-- HaleVLMError
+  HaleVLMError <|-- VLMConfigError
+  HaleVLMError <|-- VLMInputError
+  HaleVLMError <|-- VLMDatasetError
+  VLMDatasetError <|-- DatasetUnavailableError
+  HaleVLMError <|-- UnsupportedOperationError
+  ConfigError <|-- VLMConfigError
+  DataError <|-- VLMDatasetError
+```
+
+Each VLM error also derives from the built-in the call site raised before (`ValueError`,
+`NotImplementedError`), so existing `except` clauses keep working.
+
+## 11. Sources and versions
+
+Resolved in `uv.lock` at the time of this revision: transformers 5.16.1, torch 2.13.0, peft 0.20.0,
+pydantic 2.13.5, datasets 5.0.1, torchvision 0.28.0, accelerate 1.14.0, loguru 0.7.3. Model
+families follow their Hugging Face model cards (Qwen3, DeepSeek-R1-Distill-Qwen, SigLIP); the
+Q-Former follows BLIP-2 (Li et al., 2023), the gated cross-attention connector Flamingo
+(Alayrac et al., 2022), the dataset catalogs SmolVLM (arXiv:2504.05299) and SmolVLA
+(arXiv:2506.01844).

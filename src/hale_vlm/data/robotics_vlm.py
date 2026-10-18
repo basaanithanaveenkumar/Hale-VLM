@@ -6,6 +6,15 @@ from hale_vlm.data.types import Modality, RoboticsVLMMode, VLASample, VLMSample
 
 
 def format_robotics_instruction(task: str, mode: RoboticsVLMMode) -> str:
+    """Turn a robot task string into the prompt text of a VLM sample.
+
+    Args:
+        task: natural-language task of the episode.
+        mode: how robotics data is phrased (pretrain caption, finetune Q&A, instruction).
+
+    Returns:
+        The formatted instruction.
+    """
     task = task.strip()
     if mode == RoboticsVLMMode.PRETRAINING:
         return f"Robot task: {task}"

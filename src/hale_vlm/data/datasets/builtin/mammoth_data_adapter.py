@@ -1,4 +1,4 @@
-"""MammothDataAdapter: MammothDataAdapter."""
+"""Registry adapter for the ``mammoth`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("mammoth")
 class MammothDataAdapter(VLMDataAdapter):
+    """Registry adapter for ``mammoth``.
+
+    Source: Hub dataset ``MAmmoTH-VL/MAmmoTH-VL-Instruct-12M``.
+
+    MAmmoTH-VL multi-image instruction corpus.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="mammoth",
         hf_path="MAmmoTH-VL/MAmmoTH-VL-Instruct-12M",

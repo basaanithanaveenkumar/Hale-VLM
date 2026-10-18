@@ -13,6 +13,8 @@ from hale_vlm.visualization.backbone_films.film_palette import DEFAULT_PALETTE, 
 from hale_vlm.visualization.backbone_films.gif_writer import GifWriter
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
+    from IPython.display import Image
+
     from hale_vlm.visualization.backbone_films.film_canvas import FilmCanvas
 
 
@@ -61,7 +63,7 @@ class BackboneFilm(ABC):
         logger.debug("{}: {} frames", type(self).__name__, len(writer))
         return writer.save(path)
 
-    def show(self, path: str | Path):
+    def show(self, path: str | Path) -> Image:
         """Render to ``path`` and return an ``IPython.display.Image`` that embeds the GIF.
 
         Embedding (rather than linking) keeps the animation visible on GitHub and in exported

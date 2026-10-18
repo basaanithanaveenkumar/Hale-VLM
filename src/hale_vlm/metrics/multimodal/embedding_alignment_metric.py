@@ -37,6 +37,7 @@ class EmbeddingAlignmentMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._sims: list[float] = []
 
     def update(  # type: ignore[override]
@@ -57,6 +58,11 @@ class EmbeddingAlignmentMetric(VLMMetricBase):
         self._sims.append(sim)
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         if not self._sims:
             return {"cosine_sim_mean": 0.0, "cosine_sim_std": 0.0, "alignment_score": 0.0}
         mean = sum(self._sims) / len(self._sims)

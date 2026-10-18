@@ -51,6 +51,8 @@ def load_video_frames(
 
 
 class VideoDatasetAdapter(VLMDataAdapter):
+    """Adapter base for video datasets: decodes a few evenly spaced frames per sample."""
+
     max_video_frames: int = 8
     image_size: int | None = None
 

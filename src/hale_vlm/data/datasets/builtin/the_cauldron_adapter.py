@@ -1,4 +1,4 @@
-"""TheCauldronAdapter: TheCauldronAdapter."""
+"""Registry adapter for the ``the-cauldron`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VisionCate
 
 @register_dataset("the-cauldron")
 class TheCauldronAdapter(VLMDataAdapter):
+    """Registry adapter for ``the-cauldron``.
+
+    Source: Hub dataset ``HuggingFaceM4/the_cauldron``.
+
+    Idefics/SmolVLM vision mixture: OCR, charts, tables, captioning, VQA.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="the-cauldron",
         hf_path="HuggingFaceM4/the_cauldron",

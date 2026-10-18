@@ -1,4 +1,4 @@
-"""OpenXEmbodimentAdapter: OpenXEmbodimentAdapter."""
+"""Registry adapter for the ``open-x-embodiment`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("open-x-embodiment")
 class OpenXEmbodimentAdapter(VLADataAdapter):
+    """Registry adapter for ``open-x-embodiment``.
+
+    Source: Hub dataset ``jxu124/OpenX-Embodiment``.
+
+    Open X-Embodiment — 22 robot types, ~2M demonstrations across kitchen, tabletop, and outdoor
+    environments. Standard cross-embodiment pretraining corpus for OpenVLA, Octo, π₀.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="open-x-embodiment",
         hf_path="jxu124/OpenX-Embodiment",

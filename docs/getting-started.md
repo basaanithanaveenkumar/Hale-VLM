@@ -30,6 +30,12 @@ uv run hale-vlm-train configs/vlm_with_robotics_pretrain.yaml
 The first log line reports what is trainable:
 `trainable components: vision_frozen=True llm_mode=lora trainable=... / ...`.
 
+Any key can be overridden from the command line:
+
+```bash
+uv run hale-vlm-train configs/overfit.yaml --cfg-options train.steps=20 model.llm.use_lora=false
+```
+
 ## Chat
 
 ```bash
@@ -41,7 +47,7 @@ uv run hale-vlm-chat configs/base.yaml --image cat.jpg --prompt "What is in this
 ```bash
 pre-commit install
 uv run pytest tests/unit -q
-uv run pytest tests/smoke -q -m smoke
+uv run pytest tests -q -m smoke
 uv run pytest tests/integration -q -m integration
 uv run ruff check src tests
 ```

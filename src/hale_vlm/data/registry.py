@@ -17,6 +17,15 @@ DATASETS = NamedRegistry("vlm_dataset")
 
 
 def register_dataset(name: str) -> Callable[[type[T]], type[T]]:
+    """Class decorator registering a built-in VLM adapter under ``name``.
+
+    Args:
+        name: registry key (also set as ``cls.registry_name``).
+
+    Raises:
+        RegistryError: if ``name`` is already registered.
+    """
+
     def deco(cls: type[T]) -> type[T]:
         DATASETS.add(name, cls)
         cls.registry_name = name  # type: ignore[attr-defined]
@@ -44,6 +53,15 @@ def get_dataset(name: str) -> type[VLMDataAdapter]:
 
 
 def build_dataset(name: str, **kwargs) -> VLMDataAdapter:
+    """Instantiate the adapter registered as ``name`` (phase datasets included).
+
+    Args:
+        name: registry key.
+        **kwargs: forwarded to the adapter constructor.
+
+    Raises:
+        DatasetUnavailableError: if the adapter is disabled.
+    """
     adapter = get_dataset(name)(**kwargs)
     if not adapter.spec.enabled:
         raise DatasetUnavailableError(
@@ -58,6 +76,12 @@ def list_datasets(
     stage: TrainingStage | None = None,
     enabled_only: bool = True,
 ) -> list[str]:
+    """Names of registered built-in datasets, sorted.
+
+    Args:
+        stage: keep only datasets of this SmolVLM training stage.
+        enabled_only: drop adapters whose spec is disabled.
+    """
     import hale_vlm.data.datasets.builtin  # noqa: F401 — ensure registration
 
     names: list[str] = []

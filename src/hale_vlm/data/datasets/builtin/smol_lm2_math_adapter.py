@@ -1,4 +1,4 @@
-"""SmolLM2MathAdapter: SmolLM2MathAdapter."""
+"""Registry adapter for the ``smollm2-math`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage
 
 @register_dataset("smollm2-math")
 class SmolLM2MathAdapter(VLMDataAdapter):
+    """Registry adapter for ``smollm2-math``.
+
+    Source: Hub dataset ``HuggingFaceTB/smollm-corpus``.
+
+    SmolLM2 math subset used during context extension.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="smollm2-math",
         hf_path="HuggingFaceTB/smollm-corpus",

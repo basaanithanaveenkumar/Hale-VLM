@@ -1,4 +1,4 @@
-"""LLaVAInstruct665KAdapter: LLaVAInstruct665KAdapter."""
+"""Registry adapter for the ``llava-instruct-665k`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingPhase, TrainingSt
 
 @register_phase_dataset("llava-instruct-665k")
 class LLaVAInstruct665KAdapter(VLMDataAdapter):
+    """Registry adapter for ``llava-instruct-665k``.
+
+    Source: Hub dataset ``liuhaotian/LLaVA-Instruct-150K``.
+
+    LLaVA-1.5 SFT 665K instruction-following conversations.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="llava-instruct-665k",
         hf_path="liuhaotian/LLaVA-Instruct-150K",

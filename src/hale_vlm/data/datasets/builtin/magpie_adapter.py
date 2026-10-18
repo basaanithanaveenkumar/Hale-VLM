@@ -1,4 +1,4 @@
-"""MagpieAdapter: MagpieAdapter."""
+"""Registry adapter for the ``magpie`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage, VideoCateg
 
 @register_dataset("magpie")
 class MagpieAdapter(VLMDataAdapter):
+    """Registry adapter for ``magpie``.
+
+    Source: Hub dataset ``Magpie-Align/Magpie-Pro-300K-Filtered``.
+
+    Magpie alignment synthesis for the 14% text portion in video stage.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="magpie",
         hf_path="Magpie-Align/Magpie-Pro-300K-Filtered",

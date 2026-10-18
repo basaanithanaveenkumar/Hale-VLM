@@ -1,4 +1,4 @@
-"""TheStackAdapter: TheStackAdapter."""
+"""Registry adapter for the ``the-stack`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,15 @@ from hale_vlm.data.types import DatasetSpec, Modality, TrainingStage
 
 @register_dataset("the-stack")
 class TheStackAdapter(VLMDataAdapter):
+    """Registry adapter for ``the-stack``.
+
+    Source: Hub dataset ``bigcode/the-stack``.
+
+    The Stack code corpus for long-context fine-tuning.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = DatasetSpec(
         name="the-stack",
         hf_path="bigcode/the-stack",

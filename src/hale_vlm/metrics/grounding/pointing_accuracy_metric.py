@@ -28,6 +28,7 @@ class PointingAccuracyMetric(VLMMetricBase):
         self.reset()
 
     def reset(self) -> None:
+        """Clear the accumulated state (start of each evaluation epoch)."""
         self._correct: int = 0
         self._total: int = 0
 
@@ -50,4 +51,9 @@ class PointingAccuracyMetric(VLMMetricBase):
         self._total += 1
 
     def compute(self) -> dict[str, float]:
+        """Return the metric values accumulated since the last :meth:`reset`.
+
+        Returns:
+            A flat mapping of metric name to scalar value.
+        """
         return {"pointing_acc": self._correct / max(self._total, 1)}

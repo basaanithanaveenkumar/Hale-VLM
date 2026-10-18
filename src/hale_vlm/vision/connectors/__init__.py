@@ -11,11 +11,14 @@ from hale_vlm.vision.connectors.gated_cross_attention import (
     GatedCrossAttentionProjector,
 )
 from hale_vlm.vision.connectors.qformer import QFormer, QFormerLayer
+from hale_vlm.vision.connectors.registry import VISION_CONNECTORS, register_vision_connector
 
 __all__ = [
+    "VISION_CONNECTORS",
     "GatedCrossAttentionBlock",
     "GatedCrossAttentionProjector",
     "QFormer",
     "QFormerLayer",
     "build_vision_connector",
+    "register_vision_connector",
 ]

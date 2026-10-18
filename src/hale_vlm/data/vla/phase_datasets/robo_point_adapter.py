@@ -1,4 +1,4 @@
-"""RoboPointAdapter: RoboPointAdapter."""
+"""Registry adapter for the ``robopoint`` dataset."""
 
 from __future__ import annotations
 
@@ -9,6 +9,16 @@ from hale_vlm.data.vla.phase_registry import register_vla_phase_dataset
 
 @register_vla_phase_dataset("robopoint")
 class RoboPointAdapter(VLADataAdapter):
+    """Registry adapter for ``robopoint``.
+
+    Source: Hub dataset ``wentao-yuan/robopoint-data``.
+
+    RoboPoint — spatial affordance prediction: given image + instruction, predict the target 2D
+    manipulation point. Trains spatial reasoning without requiring low-level action labels.
+
+    Pattern: Registry entry; reading and normalisation come from the base adapter.
+    """
+
     spec = VLADatasetSpec(
         name="robopoint",
         hf_path="wentao-yuan/robopoint-data",

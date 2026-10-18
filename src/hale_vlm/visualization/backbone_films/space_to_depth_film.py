@@ -186,6 +186,7 @@ class SpaceToDepthFilm(BackboneFilm):
         return canvas
 
     def frames(self) -> Iterator[tuple[FilmCanvas, int]]:
+        """Yield ``(canvas, hold)``: each drawn frame and how many GIF ticks it stays."""
         placed: set[int] = set()
         yield (
             self._draw(placed, {}, "Colour = destination token; shade = channel slot inside it"),

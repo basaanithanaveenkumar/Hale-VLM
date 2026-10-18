@@ -26,4 +26,5 @@ class VLASample:
 
     @property
     def is_visual(self) -> bool:
+        """Whether the sample carries at least one image."""
         return bool(self.images)
