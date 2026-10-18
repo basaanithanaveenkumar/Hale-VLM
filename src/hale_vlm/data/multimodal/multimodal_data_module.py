@@ -70,7 +70,12 @@ class MultimodalDataModule:
 
     # ------------------------------------------------------------------ datasets
     def _uses_registry(self) -> bool:
-        return self.cfg.data.source in {"registry", "vla_registry", "mixed_registry"}
+        return self.cfg.data.source in {
+            "registry",
+            "phase_registry",
+            "vla_registry",
+            "mixed_registry",
+        }
 
     def _build_train_dataset(self) -> Dataset:
         if self._uses_registry():

@@ -5,6 +5,7 @@ from __future__ import annotations
 import colorsys
 from collections.abc import Iterator, Sequence
 
+from hale_vlm.exceptions import VLMInputError
 from hale_vlm.visualization.backbone_films.backbone_film import BackboneFilm
 from hale_vlm.visualization.backbone_films.film_canvas import FilmCanvas
 
@@ -51,13 +52,13 @@ class SpaceToDepthFilm(BackboneFilm):
         self.out_h, self.out_w = out_grid
         self.mapping = [list(m) for m in mapping]
         if len(self.mapping) != self.out_h * self.out_w:
-            raise ValueError(
+            raise VLMInputError(
                 f"mapping has {len(self.mapping)} tokens, out_grid needs {self.out_h * self.out_w}"
             )
         self.group = len(self.mapping[0])
         covered = sorted(p for m in self.mapping for p in m)
         if covered != list(range(self.grid_h * self.grid_w)):
-            raise ValueError("mapping must use every patch exactly once")
+            raise VLMInputError("mapping must use every patch exactly once")
         self.in_label = in_label
         self.out_label = out_label
         self.animate_tokens = min(animate_tokens, len(self.mapping))

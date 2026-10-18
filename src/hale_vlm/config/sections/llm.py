@@ -7,6 +7,8 @@ from hale_core.config.sections.llm_backbone import LLMBackboneConfig, LoRASettin
 from hale_core.nn.llm import is_registered, list_llm_backbones
 from pydantic import field_validator
 
+from hale_vlm.exceptions import VLMConfigError
+
 
 class LLMConfig(StrictModel):
     """Which LLM backs the VLM and how it is fine-tuned.
@@ -42,7 +44,7 @@ class LLMConfig(StrictModel):
     @classmethod
     def _known_backbone(cls, name: str) -> str:
         if name != "custom" and not is_registered(name):
-            raise ValueError(
+            raise VLMConfigError(
                 f"unknown LLM backbone {name!r}; choose one of {list_llm_backbones()} or 'custom'"
             )
         return name
@@ -51,7 +53,7 @@ class LLMConfig(StrictModel):
     @classmethod
     def _known_dtype(cls, dtype: str) -> str:
         if dtype not in ("float32", "float16", "bfloat16"):
-            raise ValueError(f"dtype must be float32, float16 or bfloat16, got {dtype!r}")
+            raise VLMConfigError(f"dtype must be float32, float16 or bfloat16, got {dtype!r}")
         return dtype
 
     @property

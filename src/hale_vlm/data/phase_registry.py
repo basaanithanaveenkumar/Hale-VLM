@@ -24,6 +24,7 @@ from hale_core.registry.base import NamedRegistry
 
 from hale_vlm.data.adapters.base import VLMDataAdapter
 from hale_vlm.data.types import TrainingPhase
+from hale_vlm.exceptions import DatasetUnavailableError
 
 T = TypeVar("T", bound=VLMDataAdapter)
 
@@ -46,7 +47,7 @@ def get_phase_dataset(name: str) -> type[VLMDataAdapter]:
 def build_phase_dataset(name: str, **kwargs) -> VLMDataAdapter:
     adapter = get_phase_dataset(name)(**kwargs)
     if not adapter.spec.enabled:
-        raise ValueError(
+        raise DatasetUnavailableError(
             f"phase dataset {name!r} is disabled "
             f"(phase={adapter.spec.phase}): {adapter.spec.description}"
         )

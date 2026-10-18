@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
 
+from hale_vlm.exceptions import VLMInputError
 from hale_vlm.visualization.backbone_films.backbone_film import BackboneFilm
 from hale_vlm.visualization.backbone_films.film_canvas import FilmCanvas
 
@@ -37,9 +38,9 @@ class DeepStackFilm(BackboneFilm):
     ) -> None:
         super().__init__(**kwargs)
         if any(t >= vit_depth for t in taps):
-            raise ValueError(f"taps {taps} must be < vit_depth {vit_depth}")
+            raise VLMInputError(f"taps {taps} must be < vit_depth {vit_depth}")
         if len(taps) > llm_layers:
-            raise ValueError("need at least one drawn LLM layer per tap")
+            raise VLMInputError("need at least one drawn LLM layer per tap")
         self.vit_depth = vit_depth
         self.taps = list(taps)
         self.llm_layers = llm_layers

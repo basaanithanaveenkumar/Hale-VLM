@@ -1,22 +1,19 @@
 # ============================================================
-# Halo-VLM  —  Deployment: GPU / CUDA inference
+# Halo-VLM  —  Inference preset: CUDA
 # ============================================================
+# Weights are frozen and no training steps run. Exporting to ONNX / TensorRT / MLX / Qualcomm is
+# configured by the pipeline files in configs/deploy/ (hale-vlm-deploy), not by this run config.
 
 inherits: base.yaml
 
+device: cuda
+
 model:
-  freeze_llm: true
-  freeze_encoder: true
+  llm:
+    dtype: bfloat16
+    freeze_llm: true
+  vision:
+    freeze_encoder: true
 
 train:
   steps: 0
-
-deploy:
-  enabled: true
-  backend: pytorch
-  device: cuda
-  dtype: bfloat16
-  compile: true
-  compile_mode: reduce-overhead
-  max_batch_size: 8
-  export_path: data/exports

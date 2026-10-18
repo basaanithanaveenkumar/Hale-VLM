@@ -98,7 +98,9 @@ def test_sequential_vla_stream():
     stream = SequentialVLAStream(
         VLAStreamConfig(dataset_names=["a", "b"], max_samples_per_dataset=1, prefetch_workers=1)
     )
-    with patch("hale_vlm.data.vla_sequential.sequential_vla_stream.build_vla_dataset", side_effect=_build):
+    with patch(
+        "hale_vlm.data.vla_sequential.sequential_vla_stream.build_vla_dataset", side_effect=_build
+    ):
         samples = list(stream)
     assert len(samples) == 2
     assert samples[0].dataset == "fake-vla"

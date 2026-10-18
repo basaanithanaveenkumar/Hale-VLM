@@ -1,21 +1,19 @@
 # ============================================================
-# Halo-VLM  —  Deployment: Local / CPU / MPS inference
+# Halo-VLM  —  Inference preset: CPU / MPS (set device: mps on Apple Silicon)
 # ============================================================
+# Weights are frozen and no training steps run. Exporting to ONNX / TensorRT / MLX / Qualcomm is
+# configured by the pipeline files in configs/deploy/ (hale-vlm-deploy), not by this run config.
 
 inherits: base.yaml
 
+device: cpu
+
 model:
-  freeze_llm: true
-  freeze_encoder: true
+  llm:
+    dtype: float32
+    freeze_llm: true
+  vision:
+    freeze_encoder: true
 
 train:
   steps: 0
-
-deploy:
-  enabled: true
-  backend: pytorch
-  device: cpu                   # cpu | mps (Apple Silicon)
-  dtype: float32
-  compile: false
-  max_batch_size: 1
-  export_path: data/exports

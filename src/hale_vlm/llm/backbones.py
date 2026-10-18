@@ -13,6 +13,7 @@ from hale_core.nn.llm import LanguageBackboneOutput, build_language_backbone, ge
 from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: F401
 
 from hale_vlm.config.sections.llm import LLMConfig
+from hale_vlm.exceptions import UnsupportedOperationError
 
 
 class LLMBackbone(nn.Module):
@@ -76,7 +77,7 @@ class LLMBackbone(nn.Module):
     def generate(self, **kwargs: Any) -> torch.Tensor:
         """Text generation (Hugging Face backbones)."""
         if not hasattr(self.core, "generate"):
-            raise NotImplementedError(f"{self.cfg.backbone} does not support generate()")
+            raise UnsupportedOperationError(f"{self.cfg.backbone} does not support generate()")
         return self.core.generate(**kwargs)
 
 

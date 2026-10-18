@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import pytest
 import torch
+from hale_core.deploy.exceptions import ConfigError
+from hale_core.deploy.registry import ADAPTERS as ROOT
 from PIL import Image
 
 import hale_vlm.deploy  # noqa: F401 - registers the hale_vlm scope
-from hale_core.deploy.exceptions import ConfigError
-from hale_core.deploy.registry import ADAPTERS as ROOT
 from hale_vlm.deploy import ADAPTERS, LanguageModelAdapter, VisionEncoderAdapter, VLMPrefillAdapter
 from hale_vlm.deploy.calibration import CalibrationImageLoader
 
@@ -16,7 +16,9 @@ from hale_vlm.deploy.calibration import CalibrationImageLoader
 def test_registry_scope_and_parent_fallback() -> None:
     assert ROOT.get("hale_vlm.VisionEncoderAdapter") is VisionEncoderAdapter
     assert ADAPTERS.get("VLMPrefillAdapter") is VLMPrefillAdapter
-    assert ADAPTERS.get("TorchModuleAdapter") is ROOT.get("TorchModuleAdapter")  # falls back to HaleBlocks
+    assert ADAPTERS.get("TorchModuleAdapter") is ROOT.get(
+        "TorchModuleAdapter"
+    )  # falls back to HaleBlocks
     assert "VisionEncoderAdapter" not in ROOT  # only reachable through the scope
 
 
@@ -53,7 +55,9 @@ def test_prefill_matches_hale_vlm_forward_with_leading_placeholders(make_adapter
     (exported,) = module(pixels, text, mask)
     placeholders = torch.full((2, n), vlm.image_token_id)
     with torch.no_grad():
-        reference = vlm(input_ids=torch.cat([placeholders, text], 1), attention_mask=None, pixel_values=pixels).logits
+        reference = vlm(
+            input_ids=torch.cat([placeholders, text], 1), attention_mask=None, pixel_values=pixels
+        ).logits
     torch.testing.assert_close(exported, reference, atol=1e-5, rtol=1e-5)
 
 
@@ -86,9 +90,16 @@ def test_calibration_images_follow_the_training_transform(make_adapter, tmp_path
     assert next(vision.calibration_batches(2))["pixel_values"].shape == (1, 3, 32, 32)
     lm = make_adapter(LanguageModelAdapter, calibration_images=str(tmp_path))
     batch = next(lm.calibration_batches(2))
-    assert batch["inputs_embeds"].shape == (1, 64 + 16, 64) and batch["attention_mask"].shape == (1, 80)
+    assert batch["inputs_embeds"].shape == (1, 64 + 16, 64) and batch["attention_mask"].shape == (
+        1,
+        80,
+    )
     prefill = make_adapter(VLMPrefillAdapter, calibration_images=str(tmp_path))
-    assert set(next(prefill.calibration_batches(1))) == {"pixel_values", "input_ids", "attention_mask"}
+    assert set(next(prefill.calibration_batches(1))) == {
+        "pixel_values",
+        "input_ids",
+        "attention_mask",
+    }
     assert make_adapter(VisionEncoderAdapter).calibration_batches(2) is None  # random fallback
 
 

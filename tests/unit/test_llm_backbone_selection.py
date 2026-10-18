@@ -1,11 +1,10 @@
-"""Any registered fine-tunable LLM can back the VLM; the config maps onto HaleBlocks' backbone config."""
+"""Any registered fine-tunable LLM can back the VLM via HaleBlocks' backbone config."""
 
 from __future__ import annotations
 
 import pytest
-from pydantic import ValidationError
-
 from hale_core.nn.llm import get_llm_backbone_spec, list_llm_backbones
+from pydantic import ValidationError
 
 from hale_vlm.config.sections.llm import LLMConfig
 from hale_vlm.llm.backbones import resolve_llm_config
@@ -20,7 +19,9 @@ def test_every_registered_hf_backbone_is_selectable(name: str) -> None:
 
 
 def test_finetune_modes_and_lora_settings_map_through() -> None:
-    cfg = LLMConfig(backbone="phi4-mini", use_lora=True, lora_r=8, lora_alpha=16, lora_train_embeddings=True)
+    cfg = LLMConfig(
+        backbone="phi4-mini", use_lora=True, lora_r=8, lora_alpha=16, lora_train_embeddings=True
+    )
     b = cfg.to_backbone_config()
     assert (b.finetune, b.lora.r, b.lora.alpha, b.lora.train_embeddings) == ("lora", 8, 16, True)
     assert LLMConfig(use_lora=False, freeze_llm=True).finetune == "frozen"
@@ -42,7 +43,9 @@ def test_unknown_backbone_and_reasoning_alias() -> None:
     assert resolve_llm_config(LLMConfig(backbone="deepseek-r1-qwen-7b")).reasoning_mode is True
 
 
-@pytest.mark.parametrize("config", ["qwen3_5_4b_base_lora", "gemma4_e4b_lora", "cosmos_reason2_2b_lora"])
+@pytest.mark.parametrize(
+    "config", ["qwen3_5_4b_base_lora", "gemma4_e4b_lora", "cosmos_reason2_2b_lora"]
+)
 def test_2026_backbone_example_configs_load(config: str) -> None:
     from pathlib import Path
 

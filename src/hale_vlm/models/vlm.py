@@ -13,7 +13,7 @@ from hale_vlm.vision.encoders import build_vision_tower
 from hale_vlm.vision.projector import build_projector
 
 VLM_VARIANTS = ("qwen3_8b_vlm", "deepseek_r1_qwen_7b_vlm")
-"""Registered model variants; the LLM itself is any ``hale_core.nn.llm`` backbone (``model.llm.backbone``)."""
+"""Registered model variants; the LLM is any ``hale_core.nn.llm`` backbone."""
 
 
 class HaleVLM(nn.Module):

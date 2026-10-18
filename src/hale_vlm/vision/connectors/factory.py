@@ -5,6 +5,7 @@ from __future__ import annotations
 import torch.nn as nn
 
 from hale_vlm.config.sections.vision import TOKEN_CONNECTOR_TYPES, VisionConfig
+from hale_vlm.exceptions import VLMConfigError
 from hale_vlm.vision.connectors.gated_cross_attention import GatedCrossAttentionProjector
 from hale_vlm.vision.connectors.qformer import QFormer
 
@@ -37,7 +38,7 @@ def build_vision_connector(vision_dim: int, llm_dim: int, cfg: VisionConfig) -> 
             dropout=g.dropout,
             gate_init=g.gate_init,
         )
-    raise ValueError(
+    raise VLMConfigError(
         f"projector_type={cfg.projector_type!r} is not a token connector; "
         f"expected one of {TOKEN_CONNECTOR_TYPES}"
     )

@@ -9,6 +9,7 @@ from loguru import logger
 
 from hale_vlm.data.types import VLASample
 from hale_vlm.data.vla_registry import build_vla_dataset
+from hale_vlm.exceptions import VLMConfigError
 
 from .vla_stream_config import VLAStreamConfig
 
@@ -18,7 +19,7 @@ class SequentialVLAStream:
 
     def __init__(self, config: VLAStreamConfig) -> None:
         if not config.dataset_names:
-            raise ValueError("dataset_names must not be empty")
+            raise VLMConfigError("dataset_names must not be empty")
         self.config = config
 
     def __iter__(self) -> Iterator[VLASample]:

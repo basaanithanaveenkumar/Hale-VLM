@@ -5,17 +5,25 @@ from __future__ import annotations
 from typing import Literal
 
 from hale_core.config.sections.data import DataConfig
-from pydantic import Field
+from pydantic import Field, model_validator
 
-from hale_vlm.data.types import RoboticsVLMMode
+from hale_vlm.data.types import RoboticsVLMMode, TrainingPhase
+from hale_vlm.exceptions import VLMConfigError
 
 
 class VLMDataConfig(DataConfig):
-    source: Literal["huggingface", "overfit", "registry", "vla_registry", "mixed_registry"] = (
-        "huggingface"
-    )
+    source: Literal[
+        "huggingface",
+        "overfit",
+        "registry",
+        "phase_registry",
+        "vla_registry",
+        "mixed_registry",
+    ] = "huggingface"
     registry_stage: Literal["all", "vision", "video", "context"] = "all"
     registry_datasets: list[str] = Field(default_factory=list)
+    registry_phase: TrainingPhase | None = None
+    """Training phase whose datasets ``source: phase_registry`` streams (pretrain/mid/post)."""
     # SmolVLA robotics registry (can also feed VLM training via robotics_vlm_mode)
     vla_registry_stage: Literal["all", "community", "simulation", "real_world"] = "all"
     vla_registry_datasets: list[str] = Field(default_factory=list)
@@ -24,6 +32,15 @@ class VLMDataConfig(DataConfig):
     streaming: bool = True
     prefetch_workers: int = 2
     max_video_frames: int = 8
+
+    @model_validator(mode="after")
+    def _require_phase_for_phase_registry(self) -> VLMDataConfig:
+        if self.source == "phase_registry" and self.registry_phase is None:
+            raise VLMConfigError(
+                "data.source='phase_registry' requires data.registry_phase "
+                "(one of: pretrain, mid_train, post_train)"
+            )
+        return self
 
     def model_post_init(self, __context) -> None:
         if not self.registry_datasets:
@@ -36,6 +53,16 @@ class VLMDataConfig(DataConfig):
             self.vla_registry_datasets = list(SMOLVLA_ALL_DATASETS)
 
     def resolved_registry_datasets(self) -> list[str]:
+        """Dataset names to stream for the VLM registry sources.
+
+        Returns:
+            The phase's registered datasets for ``source: phase_registry``, the stage preset
+            when ``registry_stage`` is not ``all``, otherwise ``registry_datasets``.
+        """
+        if self.source == "phase_registry":
+            from hale_vlm.data.phase_registry import list_phase_datasets
+
+            return list_phase_datasets(phase=self.registry_phase)
         from hale_vlm.data.catalog import (
             SMOLVLM_ALL_DATASETS,
             SMOLVLM_CONTEXT_DATASETS,
@@ -75,4 +102,7 @@ class VLMDataConfig(DataConfig):
         return self.robotics_vlm_mode != RoboticsVLMMode.OFF
 
     def uses_registry_stream(self) -> bool:
-        return self.source in {"registry", "mixed_registry"} or self.robotics_in_vlm_enabled()
+        return (
+            self.source in {"registry", "phase_registry", "mixed_registry"}
+            or self.robotics_in_vlm_enabled()
+        )

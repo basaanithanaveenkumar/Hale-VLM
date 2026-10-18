@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
 
+from hale_vlm.exceptions import VLMInputError
 from hale_vlm.visualization.backbone_films.backbone_film import BackboneFilm
 from hale_vlm.visualization.backbone_films.film_canvas import FilmCanvas
 from hale_vlm.visualization.backbone_films.token_chip import TokenChip
@@ -30,7 +31,7 @@ class TokenStreamFilm(BackboneFilm):
     ) -> None:
         super().__init__(**kwargs)
         if not chips:
-            raise ValueError("TokenStreamFilm needs at least one chip")
+            raise VLMInputError("TokenStreamFilm needs at least one chip")
         self.title = title
         self.chips = list(chips)
         self.notes = notes or {}

@@ -12,10 +12,9 @@ inherits: base.yaml
 
 data:
   source: vla_registry
-  vla_registry_phase: pretrain
   vla_registry_stage: all
   # Full 12-dataset pretrain list
-  vla_dataset_names:
+  vla_registry_datasets:
     - open-x-embodiment       # ~2M demos, 22 embodiments
     - bridge-v2               # 60K, WidowX
     - fractal-rt1             # 130K, RT-1
@@ -36,5 +35,7 @@ train:
   epochs: 1
   batch_size: 128
   lr: 1.0e-4
-  warmup_steps: 5000
+  scheduler:
+    type: warmup_cosine
+    warmup_steps: 5000
   grad_clip: 1.0

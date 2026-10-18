@@ -9,6 +9,7 @@ from hale_core.registry.base import NamedRegistry
 
 from hale_vlm.data.adapters.vla import VLADataAdapter
 from hale_vlm.data.types import VLAStage
+from hale_vlm.exceptions import DatasetUnavailableError
 
 T = TypeVar("T", bound=VLADataAdapter)
 
@@ -25,13 +26,24 @@ def register_vla_dataset(name: str) -> Callable[[type[T]], type[T]]:
 
 
 def get_vla_dataset(name: str) -> type[VLADataAdapter]:
+    """Resolve a VLA dataset adapter class by name, falling back to the VLA phase registry.
+
+    Raises:
+        RegistryError: if ``name`` is in neither registry.
+    """
+    if name not in VLA_DATASETS:
+        import hale_vlm.data.vla.phase_datasets  # noqa: F401 — registers on import
+        from hale_vlm.data.vla.phase_registry import VLA_PHASE_DATASETS
+
+        if name in VLA_PHASE_DATASETS:
+            return VLA_PHASE_DATASETS.get(name)
     return VLA_DATASETS.get(name)
 
 
 def build_vla_dataset(name: str, **kwargs) -> VLADataAdapter:
     adapter = get_vla_dataset(name)(**kwargs)
     if not adapter.spec.enabled:
-        raise ValueError(
+        raise DatasetUnavailableError(
             f"VLA dataset {name!r} is disabled in the registry "
             f"(stage={adapter.spec.stage.value}): {adapter.spec.description}"
         )

@@ -19,7 +19,9 @@ from hale_vlm.deploy.registry import ADAPTERS
 
 @ADAPTERS.register_module()
 class LanguageModelAdapter(VLMPartAdapter):
-    """Prefill graph ``(inputs_embeds | input_ids, attention_mask) → logits`` plus :meth:`hf_checkpoint`.
+    """Prefill graph ``(inputs_embeds | input_ids, attention_mask) → logits``.
+
+    Also exposes :meth:`hf_checkpoint` for the TensorRT-LLM / mlx-lm route.
 
     Two deployment routes:
 

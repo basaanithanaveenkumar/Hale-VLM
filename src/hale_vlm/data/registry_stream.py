@@ -17,7 +17,7 @@ def iter_registry_vlm_samples(
     image_size: int,
 ) -> Iterator[VLMSample]:
     """Yield VLMSample from VLM registry and/or robotics registry."""
-    if data_cfg.source in {"registry", "mixed_registry"}:
+    if data_cfg.source in {"registry", "phase_registry", "mixed_registry"}:
         stream = SequentialMultiDatasetStream(
             SequentialMixConfig(
                 dataset_names=data_cfg.resolved_registry_datasets(),

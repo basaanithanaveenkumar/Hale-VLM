@@ -6,7 +6,7 @@ no network access:
 
 * ``vision/``   - a 2-layer :class:`~transformers.SiglipVisionModel` (32×32 images, 4×4 patches);
 * ``llm/``      - a 2-layer :class:`~transformers.LlamaForCausalLM` with GQA and RoPE;
-* ``llm/``      - a word-level fast tokenizer (``<pad>``, ``<eos>``, ``<unk>`` + a small vocabulary).
+* ``llm/``      - a word-level fast tokenizer (``<pad>``, ``<eos>``, ``<unk>`` + small vocabulary).
 
 Because they are genuine ``transformers`` models, every stage that needs an HF checkpoint
 (TensorRT-LLM bundle, mlx-lm conversion) runs unchanged on them.
@@ -68,7 +68,7 @@ class TinyVLMAssets:
         return self.root / "llm"
 
     def ensure(self) -> TinyVLMAssets:
-        """Write any missing asset; existing ones are reused (idempotent, safe for parallel CI jobs)."""
+        """Write any missing asset; existing ones are reused (idempotent, safe for parallel CI)."""
         import torch
 
         torch.manual_seed(self.seed)

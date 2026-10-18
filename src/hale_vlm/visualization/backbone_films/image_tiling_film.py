@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 
+from hale_vlm.exceptions import VLMInputError
 from hale_vlm.visualization.backbone_films.backbone_film import BackboneFilm
 from hale_vlm.visualization.backbone_films.film_canvas import FilmCanvas
 from hale_vlm.visualization.backbone_films.synthetic_scene import SyntheticScene
@@ -38,7 +39,7 @@ class ImageTilingFilm(BackboneFilm):
     ) -> None:
         super().__init__(**kwargs)
         if resized_hw[0] % tile or resized_hw[1] % tile:
-            raise ValueError(f"resized_hw {resized_hw} must be a multiple of tile {tile}")
+            raise VLMInputError(f"resized_hw {resized_hw} must be a multiple of tile {tile}")
         self.image_hw = image_hw
         self.resized_hw = resized_hw
         self.tile = tile

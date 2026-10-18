@@ -129,7 +129,7 @@ class VLMPartAdapter(ModelAdapter):
         """The exportable sub-module of ``vlm``."""
 
     def load_checkpoint(self, model: nn.Module, path: Path) -> None:
-        """Training checkpoints hold the full VLM: load them into it (the part shares its modules)."""
+        """Load a training checkpoint into the full VLM (the part shares its modules)."""
         super().load_checkpoint(self.vlm, path)
 
     def forward_for_export(self, model: nn.Module, inputs: dict[str, torch.Tensor]) -> Any:

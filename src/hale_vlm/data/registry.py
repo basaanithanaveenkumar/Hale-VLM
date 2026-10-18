@@ -9,6 +9,7 @@ from hale_core.registry.base import NamedRegistry
 
 from hale_vlm.data.adapters.base import VLMDataAdapter
 from hale_vlm.data.types import TrainingStage
+from hale_vlm.exceptions import DatasetUnavailableError
 
 T = TypeVar("T", bound=VLMDataAdapter)
 
@@ -25,13 +26,27 @@ def register_dataset(name: str) -> Callable[[type[T]], type[T]]:
 
 
 def get_dataset(name: str) -> type[VLMDataAdapter]:
+    """Resolve a dataset adapter class by name.
+
+    Falls back to the phase registry (pretrain / mid-train / post-train corpora), which is kept
+    separate so the built-in SmolVLM registry count is unchanged.
+
+    Raises:
+        RegistryError: if ``name`` is in neither registry.
+    """
+    if name not in DATASETS:
+        import hale_vlm.data.datasets.phase_datasets  # noqa: F401 — registers on import
+        from hale_vlm.data.phase_registry import PHASE_DATASETS
+
+        if name in PHASE_DATASETS:
+            return PHASE_DATASETS.get(name)
     return DATASETS.get(name)
 
 
 def build_dataset(name: str, **kwargs) -> VLMDataAdapter:
     adapter = get_dataset(name)(**kwargs)
     if not adapter.spec.enabled:
-        raise ValueError(
+        raise DatasetUnavailableError(
             f"dataset {name!r} is disabled in the registry "
             f"(stage={adapter.spec.stage.value}): {adapter.spec.description}"
         )

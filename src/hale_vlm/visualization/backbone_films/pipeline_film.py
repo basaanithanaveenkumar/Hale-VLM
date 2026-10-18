@@ -5,6 +5,7 @@ from __future__ import annotations
 import textwrap
 from collections.abc import Iterator, Sequence
 
+from hale_vlm.exceptions import VLMInputError
 from hale_vlm.visualization.backbone_films.backbone_film import BackboneFilm
 from hale_vlm.visualization.backbone_films.film_canvas import FilmCanvas
 from hale_vlm.visualization.backbone_films.pipeline_stage import PipelineStage
@@ -37,7 +38,7 @@ class PipelineFilm(BackboneFilm):
     ) -> None:
         super().__init__(**kwargs)
         if not stages:
-            raise ValueError("PipelineFilm needs at least one stage")
+            raise VLMInputError("PipelineFilm needs at least one stage")
         self.title = title
         self.stages = list(stages)
         self.per_row = per_row

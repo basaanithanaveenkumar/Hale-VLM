@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
+from hale_vlm.exceptions import VLMInputError
+
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from matplotlib.figure import Figure
     from PIL import Image
@@ -73,7 +75,7 @@ class GifWriter:
             ValueError: if no frame was added.
         """
         if not self.frames:
-            raise ValueError("GifWriter.save called with no frames")
+            raise VLMInputError("GifWriter.save called with no frames")
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         frames = self._quantised()

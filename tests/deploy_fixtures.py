@@ -26,7 +26,11 @@ def make_adapter(tiny_assets_dir):
     def factory(cls, **kwargs):
         kwargs.setdefault("max_batch", 2)
         kwargs.setdefault("opt_text_len", 16)
-        return cls(run_config=RUN_CONFIG, tiny_assets=tiny_assets_dir, run_overrides={"model": {"max_length": 128}},
-                   **kwargs)
+        return cls(
+            run_config=RUN_CONFIG,
+            tiny_assets=tiny_assets_dir,
+            run_overrides={"model": {"max_length": 128}},
+            **kwargs,
+        )
 
     return factory

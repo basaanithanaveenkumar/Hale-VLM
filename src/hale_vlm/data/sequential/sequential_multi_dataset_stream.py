@@ -9,6 +9,7 @@ from loguru import logger
 
 from hale_vlm.data.registry import build_dataset
 from hale_vlm.data.types import VLMSample
+from hale_vlm.exceptions import VLMConfigError
 
 from .sequential_mix_config import SequentialMixConfig
 
@@ -24,7 +25,7 @@ class SequentialMultiDatasetStream:
 
     def __init__(self, config: SequentialMixConfig) -> None:
         if not config.dataset_names:
-            raise ValueError("dataset_names must not be empty")
+            raise VLMConfigError("dataset_names must not be empty")
         self.config = config
 
     def __iter__(self) -> Iterator[VLMSample]:

@@ -85,7 +85,9 @@ def test_sequential_stream_order_and_prefetch():
         )
     )
 
-    with patch("hale_vlm.data.sequential.sequential_multi_dataset_stream.build_dataset", side_effect=_build):
+    with patch(
+        "hale_vlm.data.sequential.sequential_multi_dataset_stream.build_dataset", side_effect=_build
+    ):
         samples = list(stream)
 
     assert [s.dataset for s in samples] == ["fake", "fake", "fake"]

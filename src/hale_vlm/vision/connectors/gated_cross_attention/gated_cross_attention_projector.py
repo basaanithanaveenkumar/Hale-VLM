@@ -5,6 +5,8 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
+from hale_vlm.exceptions import VLMInputError
+
 from .gated_cross_attention_block import GatedCrossAttentionBlock
 
 
@@ -39,7 +41,9 @@ class GatedCrossAttentionProjector(nn.Module):
         super().__init__()
         hidden_dim = hidden_dim or min(llm_dim, 768)
         if hidden_dim % num_heads:
-            raise ValueError(f"hidden_dim={hidden_dim} must be divisible by num_heads={num_heads}")
+            raise VLMInputError(
+                f"hidden_dim={hidden_dim} must be divisible by num_heads={num_heads}"
+            )
         self.num_latents = num_latents
         self.latents = nn.Parameter(torch.randn(1, num_latents, hidden_dim) * 0.02)
         self.memory_norm = nn.LayerNorm(vision_dim)
