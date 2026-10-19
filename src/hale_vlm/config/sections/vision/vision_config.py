@@ -44,25 +44,7 @@ class VisionConfig(StrictModel):
         return self.num_image_tokens
 
     def build_vision_tower(self):
-        """Build and return the configured vision tower.
-
-        For encoder in ("siglip", "clip") — returns the HuggingFace VisionTower.
-        For encoder == "local"            — returns LocalVisionTower.
-        """
-        if self.encoder == "local":
-            from hale_vlm.vision.local_encoders import build_local_vision_tower
-
-            lb = self.local_backbone
-            return build_local_vision_tower(
-                backbone_name=lb.backbone_name,
-                img_size=self.image_size,
-                drop_rate=lb.drop_rate,
-                freeze_encoder=lb.freeze_encoder,
-                freeze_up_to_stage=lb.freeze_up_to_stage,
-                pretrained_path=lb.pretrained_path,
-                return_patch_tokens=lb.return_patch_tokens,
-            )
-        # HuggingFace encoder (siglip / clip)
+        """Build the vision tower registered under :attr:`encoder` (see ``VISION_TOWERS``)."""
         from hale_vlm.vision.encoders import build_vision_tower
 
         return build_vision_tower(self)
